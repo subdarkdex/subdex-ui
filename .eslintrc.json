@@ -1,0 +1,7 @@
+{
+  "extends": ["react-app", "standard"],
+  "rules": {
+    "semi": "error",
+    "space-before-function-paren": "off"
+  }
+}
