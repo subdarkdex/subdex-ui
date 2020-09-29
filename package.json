@@ -1,0 +1,81 @@
+{
+  "name": "subdex-ui",
+  "private": true,
+  "keywords": [
+    "subdex",
+    "subdex-ui",
+    "polkadot-js"
+  ],
+  "bugs": {
+    "url": "https://github.com/subdarkdex/subdex-ui/issues"
+  },
+  "repository": {
+    "url": "https://github.com/subdarkdex/subdex-ui"
+  },
+  "license": "Unlicense",
+  "author": "Subdex team <subdex@protonmail.com>",
+  "scripts": {
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
+    "integration-test": "start-server-and-test 'serve build -l 3000' http://localhost:3000 'cypress run'",
+    "lint": "eslint src/**",
+    "lint:ci": "eslint src/** --max-warnings=0",
+    "predeploy": "yarn build",
+    "start": "react-scripts start",
+    "test": "CI=true react-scripts test --env=jsdom"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,json}": [
+      "prettier --write"
+    ],
+    "**/*.{js}": [
+      "eslint --fix"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@polkadot/api": "^2.0.1",
+    "@polkadot/extension-dapp": "^0.34.1",
+    "@polkadot/types": "^2.01",
+    "prop-types": "^15.7.2",
+    "query-string": "^6.13.2",
+    "react": "^16.13.1",
+    "react-copy-to-clipboard": "^5.0.2",
+    "react-dom": "^16.13.1",
+    "react-scripts": "3.4.3",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^1.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "prettier": "^2.1.2",
+    "start-server-and-test": "^1.11.4"
+  },
+  "engines": {
+    "node": ">=12.13.0"
+  }
+}
