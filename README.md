@@ -1,5 +1,7 @@
 # SubDEX UI
 
+[![CircleCI](https://circleci.com/gh/subdarkdex/subdex-ui.svg?style=shield)](https://circleci.com/gh/subdarkdex/subdex-ui)
+
 ### Installation
 
 The code can be installed using [git](https://git-scm.com/) and [yarn](https://yarnpkg.com/).
