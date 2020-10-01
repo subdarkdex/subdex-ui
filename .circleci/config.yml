@@ -8,10 +8,6 @@ aliases:
       branches:
         ignore:
           - gh-pages
-  - &filter-only-master
-      branches:
-        only:
-          - master
 
 version: 2
 jobs:
@@ -48,29 +44,9 @@ jobs:
           paths:
             - "./"
 
-  deploy:
-    docker:
-      - image: circleci/node:12.13
-    working_directory: ~/repo
-    steps:
-      - attach_workspace:
-          at: ~/repo
-      - run:
-          name: Build & Deploy
-          # added skip host key checking to avoid the manual prompt
-          command: |
-            mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-            git config --global user.email "devhub-deploy@users.noreply.github.com"
-            git config --global user.name "Devhub Deployer"
-            yarn deploy
-
 workflows:
   version: 2
-  test_deploy:
+  test:
     jobs:
       - test:
           filters: *filter-non-gh-pages
-      - deploy:
-          filters: *filter-only-master
-          requires:
-            - test
