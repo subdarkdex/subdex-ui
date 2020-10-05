@@ -68,15 +68,18 @@ export default function PoolLaunch() {
     return shortenNumber(new BigNumber(assetAmount).div(ksmAmount).toString(), 18)
   }
 
-  const validateAsset = useCallback((amount, assetId, setErrorFunc) => {
-    if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
-      setErrorFunc('invalid amount')
-    } else if (balances.get(assetId) && balances.get(assetId).lte(new BigNumber(amount))) {
-      setErrorFunc('exceeds the balance')
-    } else {
-      setErrorFunc('')
-    }
-  })
+  const validateAsset = useCallback(
+    (amount, assetId, setErrorFunc) => {
+      if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
+        setErrorFunc('invalid amount')
+      } else if (balances.get(assetId) && balances.get(assetId).lte(new BigNumber(amount))) {
+        setErrorFunc('exceeds the balance')
+      } else {
+        setErrorFunc('')
+      }
+    },
+    [balances]
+  )
 
   useEffect(() => validateAsset(ksmAmount, KSM_ASSET_ID, setKsmAssetError), [ksmAmount, balances, validateAsset])
 

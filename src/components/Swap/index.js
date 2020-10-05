@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useCallback } from 'react'
 import Tabs from '../Tabs'
 import TokenInput from '../TokenInput'
 import assets, { assetMap, EDG_ASSET_ID, KSM_ASSET_ID } from '../../assets'
@@ -35,43 +35,52 @@ export default function Swap() {
   const [fromExchangeExists, setFromExchangeExists] = useState(false)
   const [toExchangeExists, setToExchangeExists] = useState(false)
 
-  const validate = (fromAsset, fromAssetAmount, toAsset, toAssetAmount) => {
-    if (fromAsset === toAsset) {
-      setFromAssetError('it cannot be the same asset')
-      setToAssetError('it cannot be the same asset')
-    } else {
-      if (fromAssetAmount && (isNaN(fromAssetAmount) || fromAssetAmount <= 0)) {
-        setFromAssetError('invalid amount')
-      } else if (
-        fromAsset === KSM_ASSET_ID &&
-        !!toKsmPool &&
-        new BigNumber(toKsmPool).lte(convertAmount(fromAsset, fromAssetAmount))
-      ) {
-        setFromAssetError(`exceeds pool size: ${shortenNumber(convertBalance(KSM_ASSET_ID, toKsmPool).toString(), 8)}`)
-      } else if (!!fromAssetPool && new BigNumber(fromAssetPool).lte(convertAmount(fromAsset, fromAssetAmount))) {
-        setFromAssetError(`exceeds pool size: ${shortenNumber(convertBalance(fromAsset, fromAssetPool).toString(), 8)}`)
-      } else if (balances.get(fromAsset) && balances.get(fromAsset).lte(new BigNumber(fromAssetAmount))) {
-        setFromAssetError('exceeds the balance')
+  const validate = useCallback(
+    (fromAsset, fromAssetAmount, toAsset, toAssetAmount) => {
+      if (fromAsset === toAsset) {
+        setFromAssetError('it cannot be the same asset')
+        setToAssetError('it cannot be the same asset')
       } else {
-        setFromAssetError('')
+        if (fromAssetAmount && (isNaN(fromAssetAmount) || fromAssetAmount <= 0)) {
+          setFromAssetError('invalid amount')
+        } else if (
+          fromAsset === KSM_ASSET_ID &&
+          !!toKsmPool &&
+          new BigNumber(toKsmPool).lte(convertAmount(fromAsset, fromAssetAmount))
+        ) {
+          setFromAssetError(
+            `exceeds pool size: ${shortenNumber(convertBalance(KSM_ASSET_ID, toKsmPool).toString(), 8)}`
+          )
+        } else if (!!fromAssetPool && new BigNumber(fromAssetPool).lte(convertAmount(fromAsset, fromAssetAmount))) {
+          setFromAssetError(
+            `exceeds pool size: ${shortenNumber(convertBalance(fromAsset, fromAssetPool).toString(), 8)}`
+          )
+        } else if (balances.get(fromAsset) && balances.get(fromAsset).lte(new BigNumber(fromAssetAmount))) {
+          setFromAssetError('exceeds the balance')
+        } else {
+          setFromAssetError('')
+        }
+        if (toAssetAmount && (isNaN(toAssetAmount) || toAssetAmount <= 0)) {
+          setToAssetError('invalid amount')
+        } else if (
+          toAsset === KSM_ASSET_ID &&
+          !!fromKsmPool &&
+          new BigNumber(fromKsmPool).lte(convertAmount(toAsset, toAssetAmount))
+        ) {
+          setToAssetError(
+            `exceeds pool size: ${shortenNumber(convertBalance(KSM_ASSET_ID, fromKsmPool).toString(), 8)}`
+          )
+        } else if (!!toAssetPool && new BigNumber(toAssetPool).lte(convertAmount(toAsset, toAssetAmount))) {
+          setToAssetError(`exceeds pool size: ${shortenNumber(convertBalance(toAsset, toAssetPool).toString(), 8)}`)
+        } else if (balances.get(toAsset) && balances.get(toAsset).lte(new BigNumber(toAssetAmount))) {
+          setToAssetError('exceeds the balance')
+        } else {
+          setToAssetError('')
+        }
       }
-      if (toAssetAmount && (isNaN(toAssetAmount) || toAssetAmount <= 0)) {
-        setToAssetError('invalid amount')
-      } else if (
-        toAsset === KSM_ASSET_ID &&
-        !!fromKsmPool &&
-        new BigNumber(fromKsmPool).lte(convertAmount(toAsset, toAssetAmount))
-      ) {
-        setToAssetError(`exceeds pool size: ${shortenNumber(convertBalance(KSM_ASSET_ID, fromKsmPool).toString(), 8)}`)
-      } else if (!!toAssetPool && new BigNumber(toAssetPool).lte(convertAmount(toAsset, toAssetAmount))) {
-        setToAssetError(`exceeds pool size: ${shortenNumber(convertBalance(toAsset, toAssetPool).toString(), 8)}`)
-      } else if (balances.get(toAsset) && balances.get(toAsset).lte(new BigNumber(toAssetAmount))) {
-        setToAssetError('exceeds the balance')
-      } else {
-        setToAssetError('')
-      }
-    }
-  }
+    },
+    [balances, fromAssetPool, fromKsmPool, toAssetPool, toKsmPool]
+  )
 
   useEffect(() => setReceiver(account), [account])
 
