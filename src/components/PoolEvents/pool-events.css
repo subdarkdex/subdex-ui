@@ -1,0 +1,11 @@
+table.pool-events {
+  width: 100%;
+}
+
+table.pool-events th {
+  width: 23%;
+}
+
+table.pool-events th.time {
+  width: 31%;
+}

@@ -1,0 +1,65 @@
+/* override dropdown menu color */
+div.ui.selection.dropdown .menu {
+  background: linear-gradient(#9381ff, deepskyblue);
+  width: calc(140% + 2px);
+  left: -40%;
+  border-radius: 0.5em;
+}
+
+/* override the color of the text in the input */
+div.ui.dropdown > .text {
+  color: #c0fdff;
+  font-family: Gill Sans, Gill Sans MT, Calibri, sans-serif;
+}
+
+/* override gradient input border and input background color */
+div.ui.search.dropdown {
+  background-color: transparent;
+  border-width: 0;
+  font-family: Gill Sans, Gill Sans MT, Calibri, sans-serif;
+  border-radius: 1.2em;
+}
+
+div.ui.dropdown .menu > .item {
+  display: flex;
+  align-items: center;
+}
+
+/* the container above the account address and account balance*/
+.account-container {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  border-radius: 1.2em;
+  background: linear-gradient(#070020, #070020) padding-box,
+    /*this is the background color*/ linear-gradient(to right, #bbf0ff, #9381ff) border-box; /* this is the gradient background color*/
+  border: 0.2em solid transparent;
+  width: 251px;
+  justify-items: center;
+  font-size: 14px;
+}
+
+/* the account balance section*/
+.account-item-left {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 50%;
+  margin-left: 1.2em;
+  border-right: 1px solid #9381ff; /* the vertical splitting line*/
+  order: 1;
+}
+
+/* the adress drop down menu section*/
+.account-item-right {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  justify-content: center;
+  width: 50%;
+  order: 2;
+}

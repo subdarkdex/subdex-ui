@@ -1,0 +1,16 @@
+div.tabs {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22px;
+  font-weight: normal;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #9381ff;
+}
+
+div.tabs a.active {
+  color: #c0fdff;
+  font-size: 22px;
+  font-weight: 500;
+}

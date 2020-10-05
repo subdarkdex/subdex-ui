@@ -2,6 +2,7 @@
   "extends": ["react-app", "standard"],
   "rules": {
     "semi": "error",
-    "space-before-function-paren": "off"
+    "space-before-function-paren": "off",
+    "comma-dangle": "off"
   }
 }

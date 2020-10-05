@@ -1,0 +1,9 @@
+div.label-output-container {
+  display: flex;
+  font-size: small;
+  font-weight: lighter;
+  justify-content: space-between;
+  width: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+}
