@@ -1,0 +1,19 @@
+{
+  "APP_NAME": "SubDEX",
+  "DEVELOPMENT_KEYRING": true,
+  "RPC": {},
+  "CUSTOM_TYPES": {
+    "Address": "AccountId",
+    "LookupSource": "AccountId",
+    "AssetId": "u64",
+    "Shares": "BalanceOf<T>",
+    "Exchange": {
+      "fee_rate": "BalanceOf<T>",
+      "ksm_pool": "BalanceOf<T>",
+      "token_pool": "BalanceOf<T>",
+      "invariant": "BalanceOf<T>",
+      "total_shares": "BalanceOf<T>",
+      "shares": "BTreeMap<T::AccountId, BalanceOf<T>>"
+    }
+  }
+}

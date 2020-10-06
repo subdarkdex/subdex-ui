@@ -1,0 +1,15 @@
+table.swap-events {
+  width: 100%;
+}
+
+th.swap-events-sold {
+  width: 35%;
+}
+
+th.swap-events-bought {
+  width: 35%;
+}
+
+th.swap-events-time {
+  width: 30%;
+}

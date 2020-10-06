@@ -1,0 +1,13 @@
+.nodeContainer {
+  border-radius: 1.2em;
+  background: linear-gradient(#070020, #070020) padding-box,
+    /*this is the background color*/ linear-gradient(to right, #bbf0ff, #9381ff) border-box; /* this is the gradient background color*/
+  border: 0.2em solid transparent;
+  width: 251px;
+  font-size: 14px;
+}
+
+.nodeContainer .ui.selection.dropdown .menu {
+  width: 100%;
+  left: 0px;
+}

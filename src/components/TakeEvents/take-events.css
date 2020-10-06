@@ -1,0 +1,15 @@
+table.take-events {
+  width: 100%;
+}
+
+th.take-events-user {
+  width: 35%;
+}
+
+th.take-events-asset {
+  width: 35%;
+}
+
+th.take-events-time {
+  width: 30%;
+}
