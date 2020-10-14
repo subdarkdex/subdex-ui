@@ -4,7 +4,6 @@ import SwapMarket from '../../components/SwapMarket'
 import PoolMarket from '../../components/PoolMarket'
 import TakeMarket from '../../components/TakeMarket'
 import { RedirectToSwapMarket } from '../../utils/redirects'
-import './app.css'
 import useSubstrate from '../../hooks/useSubstrate'
 import { SubstrateContextProvider } from '../../context'
 import { Grid, Message, Dimmer, Loader } from 'semantic-ui-react'
@@ -12,6 +11,10 @@ import { AccountContextProvider } from '../../context/AccountContext'
 import Header from '../../components/Header'
 import { EventsContextProvider } from '../../context/EventsContext'
 import DeveloperConsole from '../../components/DeveloperConsole'
+import { GlobalStyles } from './GlobalStyles'
+import { lightTheme, darkTheme } from './themes'
+import { ThemeProvider } from 'styled-components'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 function Main() {
   const { apiState, keyringState, apiError } = useSubstrate()
@@ -61,11 +64,19 @@ function Main() {
 }
 
 export default function App() {
+  const { theme, themeConfigured } = useDarkMode()
+  const themeMode = theme === 'light' ? lightTheme : darkTheme
+  if (!themeConfigured) {
+    return <div />
+  }
   return (
-    <SubstrateContextProvider>
-      <AccountContextProvider>
-        <Main />
-      </AccountContextProvider>
-    </SubstrateContextProvider>
+    <ThemeProvider theme={themeMode}>
+      <GlobalStyles />
+      <SubstrateContextProvider>
+        <AccountContextProvider>
+          <Main />
+        </AccountContextProvider>
+      </SubstrateContextProvider>
+    </ThemeProvider>
   )
 }

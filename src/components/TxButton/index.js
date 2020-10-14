@@ -156,7 +156,9 @@ function TxButton({
     const paramVal = inputParams.map((inputParam) =>
       typeof inputParam === 'object'
         ? inputParam.value.trim()
-        : typeof inputParam === 'string' ? inputParam.trim() : inputParam
+        : typeof inputParam === 'string'
+        ? inputParam.trim()
+        : inputParam
     )
     const params = paramFields.map((field, ind) => ({ ...field, value: paramVal[ind] || null }))
 
