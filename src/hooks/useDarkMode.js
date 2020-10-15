@@ -4,16 +4,16 @@ export const useDarkMode = () => {
   const [theme, setTheme] = useState('light')
   const [themeConfigured, setThemeConfigured] = useState(false)
 
-  const setMode = (mode) => {
+  const saveTheme = (mode) => {
     window.localStorage.setItem('theme', mode)
     setTheme(mode)
   }
 
   const toggleTheme = () => {
     if (theme === 'light') {
-      setMode('dark')
+      saveTheme('dark')
     } else {
-      setMode('light')
+      saveTheme('light')
     }
   }
 
