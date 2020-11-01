@@ -1,13 +1,15 @@
 import React, { useState, useContext } from 'react'
-import './token-input.css'
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { Dropdown } from 'semantic-ui-react'
 import BalanceAnnotation from '../BalanceAnnotation'
 import { AccountContext } from '../../context/AccountContext'
 import { assetMap } from '../../assets'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 function TokenInput(props) {
   const { account } = useContext(AccountContext)
+  const { theme } = useDarkMode()
   const { label, asset, amount, options, error, onChangeAsset, onChangeAmount, dropdownDisabled, ...rest } = props
   const [assetId, setAssetId] = useState(asset)
   const handleChangeAsset = (assetId) => {
@@ -21,17 +23,21 @@ function TokenInput(props) {
     return 12
   }
   return (
-    <div className="token-input-container">
-      <div className="label-error-balance">
+    <TokenInputContainer>
+      <LabelErrorBalance>
         <div>{label || ''}</div>
-        <div className={error ? 'token-input-error' : 'token-input-no-error'}>{error}</div>
+        {error ? <Error>{error}</Error> : ''}
         <div>
           <BalanceAnnotation address={account} assetId={assetId} label="Balance: " />
         </div>
-      </div>
-      <div className="input-and-dropdown">
+      </LabelErrorBalance>
+      <InputAndDropdown>
         <input onChange={onChangeAmount} value={amount} {...rest} style={{ fontSize: calcFontSize(amount) }} />
-        <img src={assetMap.get(assetId).logo} alt="" width={22} />
+        <img
+          src={theme === 'light' ? assetMap.get(assetId).lightLogo : assetMap.get(assetId).darkLogo}
+          alt=""
+          width={22}
+        />
         <Dropdown
           fluid
           search
@@ -43,10 +49,74 @@ function TokenInput(props) {
           }}
           value={asset}
         />
-      </div>
-    </div>
+      </InputAndDropdown>
+    </TokenInputContainer>
   )
 }
+
+const TokenInputContainer = styled.div`
+  width: 350px;
+  height: 70px;
+  border: 1px solid ${({ theme }) => theme.borderColor};
+  border-radius: 20px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`
+
+const LabelErrorBalance = styled.div`
+  font-weight: lighter;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+`
+
+const Error = styled.div`
+  color: orangered;
+`
+
+const InputAndDropdown = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  & > input {
+    background: transparent;
+    border: none;
+    font-weight: lighter;
+    font-size: 19px;
+    color: ${({ theme }) => theme.textColor};
+    width: 80%;
+  }
+  & > input:focus {
+    outline: 0;
+  }
+  & > .ui.fluid.dropdown {
+    width: 20%;
+    padding-left: 0;
+  }
+  & > .ui.search.dropdown > .text {
+    left: 10px;
+  }
+  & > .ui.selection.dropdown > .dropdown.icon {
+    right: 0;
+  }
+  & > .ui.dropdown .menu > .item {
+    display: flex;
+    align-items: center;
+  }
+  & > .ui.dropdown .menu > .item > .image {
+    width: 22px;
+  }
+  & > .ui.selection.dropdown .menu {
+    width: calc(150% + 2px);
+    left: -50%;
+  }
+  & > .ui.dropdown > .text > img {
+    display: none;
+  }
+`
 
 TokenInput.propTypes = {
   label: PropTypes.string,

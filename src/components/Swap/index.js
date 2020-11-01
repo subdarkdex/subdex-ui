@@ -10,9 +10,12 @@ import LabelOutput from '../LabelOutput'
 import { isValidAddress } from '../../utils/address'
 import BigNumber from 'bignumber.js'
 import { convertAmount, convertBalance, shortenNumber, truncDecimals } from '../../utils/conversion'
+import { MarketPlace } from '../Market'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 export default function Swap() {
   const { api, keyring } = useSubstrate()
+  const { theme } = useDarkMode()
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const [status, setStatus] = useState('')
@@ -235,17 +238,17 @@ export default function Swap() {
     return !!status && !status.includes('Finalized') && !status.includes('Error')
   }
 
-  const options = assets.map(({ assetId, symbol, logo }) => ({
+  const options = assets.map(({ assetId, symbol, lightLogo, darkLogo }) => ({
     key: assetId,
     value: assetId,
     text: symbol,
-    image: logo,
+    image: theme === 'light' ? lightLogo : darkLogo,
   }))
 
   return (
     <>
       <Tabs active={'swap'} />
-      <div className="market-place">
+      <MarketPlace>
         <TokenInput
           options={options}
           label="Send"
@@ -301,7 +304,7 @@ export default function Swap() {
           type="SIGNED-TX"
           label="Swap"
         />
-      </div>
+      </MarketPlace>
     </>
   )
 }

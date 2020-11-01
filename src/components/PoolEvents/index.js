@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { EventsContext } from '../../context/EventsContext'
-import './pool-events.css'
+import styled from 'styled-components'
 import describe from '../../utils/time'
 
 export default function PoolEvents() {
@@ -13,13 +13,13 @@ export default function PoolEvents() {
   }, [])
   const { poolEvents } = useContext(EventsContext)
   return (
-    <table className="pool-events">
+    <PoolEventsTable>
       <thead>
         <tr>
-          <th>Type</th>
-          <th>Pair</th>
-          <th>Shares</th>
-          <th className="time">Time</th>
+          <PoolEventsTableHeader>Type</PoolEventsTableHeader>
+          <PoolEventsTableHeader>Pair</PoolEventsTableHeader>
+          <PoolEventsTableHeader>Shares</PoolEventsTableHeader>
+          <PoolEventsTableHeaderTime>Time</PoolEventsTableHeaderTime>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +35,18 @@ export default function PoolEvents() {
           </tr>
         ))}
       </tbody>
-    </table>
+    </PoolEventsTable>
   )
 }
+
+const PoolEventsTable = styled.table`
+  width: 100%;
+`
+
+const PoolEventsTableHeader = styled.th`
+  width: 23%;
+`
+
+const PoolEventsTableHeaderTime = styled.th`
+  width: 31%;
+`

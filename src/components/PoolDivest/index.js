@@ -9,9 +9,12 @@ import { AccountContext } from '../../context/AccountContext'
 import { TxButton } from '../TxButton'
 import { convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
+import { PoolInputsContainer } from '../Pool'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()
+  const { theme } = useDarkMode()
   const { account } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Divest your tokens from the liquidity pool by burning your DarkDEX shares'
@@ -112,11 +115,11 @@ export default function PoolInvest() {
 
   const divestAssetOptions = assets
     .filter((asset) => asset.assetId !== KSM_ASSET_ID)
-    .map(({ assetId, symbol, logo }) => ({
+    .map(({ assetId, symbol, darkLogo, lightLogo }) => ({
       key: assetId,
       value: assetId,
       text: symbol,
-      image: logo,
+      image: theme === 'light' ? lightLogo : darkLogo,
     }))
 
   const inProgress = () => {
@@ -124,7 +127,7 @@ export default function PoolInvest() {
   }
 
   return (
-    <div className="pool-inputs-container">
+    <PoolInputsContainer>
       <Hint text={hint} />
       <TokenInput
         options={divestAssetOptions}
@@ -161,6 +164,6 @@ export default function PoolInvest() {
         type="SIGNED-TX"
         label="Divest"
       />
-    </div>
+    </PoolInputsContainer>
   )
 }

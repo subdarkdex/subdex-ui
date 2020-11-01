@@ -9,7 +9,7 @@ import { AccountContext } from '../../context/AccountContext'
 
 function BalanceAnnotation(props) {
   const { balances, setBalances } = useContext(AccountContext)
-  const { assetId, address, className, label, showAssetSymbol } = props
+  const { assetId, address, label, showAssetSymbol } = props
   const { api } = useSubstrate()
   const [accountBalance, setAccountBalance] = useState(' ') // KEEP the space, it's required by Tooltip
 
@@ -34,7 +34,7 @@ function BalanceAnnotation(props) {
   }, [api, assetId, address, setBalances, balances])
 
   return address ? (
-    <div className={className}>
+    <div>
       {label || ''}
       <Tooltip
         html={accountBalance}
@@ -54,7 +54,6 @@ function BalanceAnnotation(props) {
 BalanceAnnotation.propTypes = {
   assetId: PropTypes.string.isRequired,
   address: PropTypes.string,
-  className: PropTypes.string,
   label: PropTypes.string,
   showAssetSymbol: PropTypes.bool,
 }

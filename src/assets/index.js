@@ -1,6 +1,9 @@
-import ksm from './ksm.png'
-import btc from './btc.png'
-import edg from './edg.png'
+import ksmDark from './ksm-dark.png'
+import ksmLight from './ksm-light.png'
+import btcDark from './btc-dark.png'
+import btcLight from './btc-light.png'
+import edgDark from './edg-dark.png'
+import edgLight from './edg-light.png'
 
 const KSM_ASSET_ID = '0'
 const BTC_ASSET_ID = '1'
@@ -10,7 +13,8 @@ const assets = [
   {
     assetId: KSM_ASSET_ID,
     symbol: 'KSM',
-    logo: ksm,
+    darkLogo: ksmDark,
+    lightLogo: ksmLight,
     name: 'Kusama',
     decimals: 12,
   },
@@ -18,7 +22,8 @@ const assets = [
   {
     assetId: BTC_ASSET_ID,
     symbol: 'BTC',
-    logo: btc,
+    darkLogo: btcDark,
+    lightLogo: btcLight,
     name: 'Bitcoin',
     decimals: 12,
   },
@@ -26,7 +31,8 @@ const assets = [
   {
     assetId: EDG_ASSET_ID,
     symbol: 'EDG',
-    logo: edg,
+    darkLogo: edgDark,
+    lightLogo: edgLight,
     name: 'Edgeware',
     decimals: 12,
   },

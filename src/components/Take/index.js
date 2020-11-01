@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Tabs from '../Tabs'
 import LabelInput from '../LabelInput'
 import { TxButton } from '../TxButton'
+import { MarketPlace } from '../Market'
 
 export default function Take() {
   const [, setStatus] = useState('')
@@ -42,7 +43,7 @@ export default function Take() {
   return (
     <>
       <Tabs active={'take'} />
-      <div className="market-place">
+      <MarketPlace>
         <LabelInput
           label="Public input"
           placeholder="Provide the public input."
@@ -76,7 +77,7 @@ export default function Take() {
           type="SIGNED-TX"
           label="Withdraw"
         />
-      </div>
+      </MarketPlace>
     </>
   )
 }

@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button } from 'semantic-ui-react'
 import { web3FromSource } from '@polkadot/extension-dapp'
 
 import { useSubstrate } from '../../hooks'
 import conversion from '../../utils/conversion'
-import './tx-button.css'
+import styled from 'styled-components'
 
 function TxButton({
   accountPair = null,
@@ -215,25 +214,90 @@ function TxButton({
   }
 
   return (
-    <span className="tranButton">
-      <Button
-        color={color}
-        style={style}
-        type="submit"
-        onClick={transaction}
-        disabled={
-          disabled ||
-          !palletRpc ||
-          !callable ||
-          !allParamsFilled() ||
-          ((isSudo() || isUncheckedSudo()) && !isSudoer(accountPair))
-        }
-      >
-        <span>{label}</span>
-      </Button>
-    </span>
+    <Button
+      color={color}
+      style={style}
+      type="submit"
+      onClick={transaction}
+      disabled={
+        disabled ||
+        !palletRpc ||
+        !callable ||
+        !allParamsFilled() ||
+        ((isSudo() || isUncheckedSudo()) && !isSudoer(accountPair))
+      }
+    >
+      <span>{label}</span>
+    </Button>
   )
 }
+
+const Button = styled.button`
+  width: 177px;
+  height: 45px;
+  border: 1px solid ${({ theme }) => theme.borderColor};
+  border-radius: 16px;
+  opacity: 1;
+  background-color: ${({ theme }) => theme.buttonBackground};
+  color: ${({ theme }) => theme.textColor};
+  font-family: Gill Sans, Gill Sans MT, Calibri, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  &:focus {
+    outline: 0;
+  }
+  &:hover {
+    cursor: pointer;
+    background-color: ${({ theme }) => theme.buttonBackground};
+  }
+  &:active {
+    background-color: ${({ theme }) => theme.buttonBackgroundActive};
+  }
+  & span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+  }
+  & span:after {
+    content: '\\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -10px;
+    transition: 0.5s;
+  }
+  &:hover span {
+    padding-right: 15px;
+  }
+  &:hover span:after {
+    opacity: 1;
+    right: 0;
+  }
+  &[disabled] {
+    color: ${({ theme }) => theme.buttonTextColorDisabled};
+  }
+  &[disabled]:hover {
+    cursor: default;
+    background-color: ${({ theme }) => theme.buttonBackground};
+  }
+  &[disabled] span {
+    cursor: default;
+  }
+  &[disabled] span:after {
+    content: '';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: 0;
+    transition: 0.5s;
+  }
+  &[disabled]:hover span {
+    padding-right: 0;
+  }
+`
 
 // prop typechecking
 TxButton.propTypes = {
@@ -249,16 +313,4 @@ TxButton.propTypes = {
   }).isRequired,
 }
 
-function TxGroupButton(props) {
-  return (
-    <Button.Group>
-      <TxButton label="Unsigned" type="UNSIGNED-TX" color="grey" {...props} />
-      <Button.Or />
-      <TxButton label="Signed" type="SIGNED-TX" color="blue" {...props} />
-      <Button.Or />
-      <TxButton label="SUDO" type="SUDO-TX" color="red" {...props} />
-    </Button.Group>
-  )
-}
-
-export { TxButton, TxGroupButton }
+export { TxButton }

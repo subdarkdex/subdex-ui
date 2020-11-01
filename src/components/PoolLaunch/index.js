@@ -8,9 +8,12 @@ import useSubstrate from '../../hooks/useSubstrate'
 import { AccountContext } from '../../context/AccountContext'
 import { convertAmount, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
+import { PoolInputsContainer } from '../Pool'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 export default function PoolLaunch() {
   const { api, keyring } = useSubstrate()
+  const { theme } = useDarkMode()
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Cannot find the pool? Add the desirable token pair and become its first liquidity provider'
@@ -89,20 +92,20 @@ export default function PoolLaunch() {
 
   const ksmAssetOptions = assets
     .filter((asset) => asset.assetId === KSM_ASSET_ID)
-    .map(({ assetId, symbol, logo }) => ({
+    .map(({ assetId, symbol, lightLogo, darkLogo }) => ({
       key: assetId,
       value: assetId,
       text: symbol,
-      image: logo,
+      image: theme === 'light' ? lightLogo : darkLogo,
     }))
 
   const assetOptions = assets
     .filter((asset) => asset.assetId !== KSM_ASSET_ID)
-    .map(({ assetId, symbol, logo }) => ({
+    .map(({ assetId, symbol, lightLogo, darkLogo }) => ({
       key: assetId,
       value: assetId,
       text: symbol,
-      image: logo,
+      image: theme === 'light' ? lightLogo : darkLogo,
     }))
 
   const inProgress = () => {
@@ -110,7 +113,7 @@ export default function PoolLaunch() {
   }
 
   return (
-    <div className="pool-inputs-container">
+    <PoolInputsContainer>
       <Hint text={hint} />
       <TokenInput
         options={ksmAssetOptions}
@@ -152,6 +155,6 @@ export default function PoolLaunch() {
         type="SIGNED-TX"
         label="Launch"
       />
-    </div>
+    </PoolInputsContainer>
   )
 }

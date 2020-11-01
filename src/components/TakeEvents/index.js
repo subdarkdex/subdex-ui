@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { EventsContext } from '../../context/EventsContext'
-import './take-events.css'
+import styled from 'styled-components'
 import describe from '../../utils/time'
 import shorten from '../../utils/address'
 
@@ -14,12 +14,12 @@ export default function TakeEvents() {
   }, [])
   const { takeEvents } = useContext(EventsContext)
   return (
-    <table className="take-events">
+    <TakeEventsTable>
       <thead>
         <tr>
-          <th className="take-events-user">User</th>
-          <th className="take-events-asset">Asset</th>
-          <th className="take-events-time">Time</th>
+          <TakeEventsTableHeaderUser>User</TakeEventsTableHeaderUser>
+          <TakeEventsTableHeaderAsset>Asset</TakeEventsTableHeaderAsset>
+          <TakeEventsTableHeaderTime>Time</TakeEventsTableHeaderTime>
         </tr>
       </thead>
       <tbody>
@@ -36,6 +36,22 @@ export default function TakeEvents() {
           </tr>
         ))}
       </tbody>
-    </table>
+    </TakeEventsTable>
   )
 }
+
+const TakeEventsTable = styled.table`
+  width: 100%;
+`
+
+const TakeEventsTableHeaderUser = styled.th`
+  width: 35%;
+`
+
+const TakeEventsTableHeaderAsset = styled.th`
+  width: 35%;
+`
+
+const TakeEventsTableHeaderTime = styled.th`
+  width: 30%;
+`
