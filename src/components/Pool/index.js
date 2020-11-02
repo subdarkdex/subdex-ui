@@ -4,14 +4,14 @@ import OptionButton from '../OptionButton'
 import PoolInvest from '../PoolInvest'
 import PoolDivest from '../PoolDivest'
 import PoolLaunch from '../PoolLaunch'
-import './pool.css'
+import styled from 'styled-components'
 
 export default function Pool() {
   const [option, setOption] = useState('invest')
   return (
     <>
       <Tabs active={'pool'} />
-      <div className="pool-options-container">
+      <PoolOptionsContainer>
         <OptionButton selected={option === 'invest'} onClick={() => setOption('invest')}>
           Invest
         </OptionButton>
@@ -21,10 +21,25 @@ export default function Pool() {
         <OptionButton selected={option === 'launch'} onClick={() => setOption('launch')}>
           Launch
         </OptionButton>
-      </div>
+      </PoolOptionsContainer>
       {option === 'invest' && <PoolInvest />}
       {option === 'divest' && <PoolDivest />}
       {option === 'launch' && <PoolLaunch />}
     </>
   )
 }
+
+const PoolOptionsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 27px;
+`
+
+export const PoolInputsContainer = styled.div`
+  height: 365px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  align-content: center;
+`

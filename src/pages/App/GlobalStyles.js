@@ -39,12 +39,27 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.textColor};
   }
   
-  div.market-place {
+  div.ui.selection.dropdown .menu {
+    background: ${({ theme }) => theme.dropdownBackground};
+    width: calc(140% + 2px);
+    left: -40%;
+    border-radius: 0.5em;
+  }
+  
+  div.ui.dropdown > .text {
+    color: ${({ theme }) => theme.textColor};
+    font-family: Gill Sans, Gill Sans MT, Calibri, sans-serif;
+  }
+  
+  div.ui.search.dropdown {
+    background-color: transparent;
+    border-width: 0;
+    font-family: Gill Sans, Gill Sans MT, Calibri, sans-serif;
+    border-radius: 1.2em;
+  }
+  
+  div.ui.dropdown .menu > .item {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;
-    align-content: center;
-    height: 100%;
   }
 `

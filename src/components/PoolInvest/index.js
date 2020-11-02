@@ -8,9 +8,12 @@ import useSubstrate from '../../hooks/useSubstrate'
 import { AccountContext } from '../../context/AccountContext'
 import { convertAmount, convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
+import { PoolInputsContainer } from '../Pool'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()
+  const { theme } = useDarkMode()
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Invest your tokens to the liquidity pool and earn 3% of the trading fees'
@@ -127,24 +130,24 @@ export default function PoolInvest() {
 
   const ksmAssetOptions = assets
     .filter((asset) => asset.assetId === KSM_ASSET_ID)
-    .map(({ assetId, symbol, logo }) => ({
+    .map(({ assetId, symbol, darkLogo, lightLogo }) => ({
       key: assetId,
       value: assetId,
       text: symbol,
-      image: logo,
+      image: theme === 'light' ? lightLogo : darkLogo,
     }))
 
   const assetOptions = assets
     .filter((asset) => asset.assetId !== KSM_ASSET_ID)
-    .map(({ assetId, symbol, logo }) => ({
+    .map(({ assetId, symbol, lightLogo, darkLogo }) => ({
       key: assetId,
       value: assetId,
       text: symbol,
-      image: logo,
+      image: theme === 'light' ? lightLogo : darkLogo,
     }))
 
   return (
-    <div className="pool-inputs-container">
+    <PoolInputsContainer>
       <Hint text={hint} />
       <TokenInput
         options={ksmAssetOptions}
@@ -187,6 +190,6 @@ export default function PoolInvest() {
         type="SIGNED-TX"
         label="Invest"
       />
-    </div>
+    </PoolInputsContainer>
   )
 }

@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import useSubstrate from '../../hooks/useSubstrate'
 import { Dropdown } from 'semantic-ui-react'
-import './node.css'
+import styled from 'styled-components'
 import { SubstrateContext } from '../../context'
 import dev from '../../config/development.json'
 import prod from '../../config/production.json'
@@ -33,20 +33,31 @@ export default function Node() {
   }
 
   return (
-    <div className="nodeContainer">
-      <div>
-        <Dropdown
-          fluid
-          search
-          selection
-          placeholder="Select a Node"
-          options={nodeOptions}
-          onChange={(_, dropdown) => {
-            onChange(dropdown.value)
-          }}
-          value={currentSocket}
-        />
-      </div>
-    </div>
+    <NodeContainer>
+      <Dropdown
+        fluid
+        search
+        selection
+        placeholder="Select a Node"
+        options={nodeOptions}
+        onChange={(_, dropdown) => {
+          onChange(dropdown.value)
+        }}
+        value={currentSocket}
+      />
+    </NodeContainer>
   )
 }
+
+const NodeContainer = styled.div`
+  border-radius: 1.2em;
+  border: 0.2em solid transparent;
+  width: 251px;
+  font-size: 14px;
+  box-shadow: ${({ theme }) => theme.panelBoxShadow};
+  background: ${({ theme }) => theme.panelBackground};
+  & .ui.selection.dropdown .menu {
+    width: 100%;
+    left: 0px;
+  }
+`

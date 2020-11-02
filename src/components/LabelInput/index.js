@@ -1,5 +1,5 @@
 import React from 'react'
-import './label-input.css'
+import styled from 'styled-components'
 import PropTypes from 'prop-types'
 
 function LabelInput(props) {
@@ -12,15 +12,51 @@ function LabelInput(props) {
     return 10
   }
   return (
-    <div className="label-input-container">
-      <div className="label-and-error">
-        <div className="label-input-label">{label || ''}</div>
-        <div className={error ? 'label-input-error' : 'label-input-no-error'}>{error}</div>
-      </div>
-      <input value={value} {...rest} style={{ fontSize: calcFontSize(value) }} />
-    </div>
+    <LabelInputContainer>
+      <LabelAndError>
+        <Label>{label || ''}</Label>
+        {error ? <Error>{error}</Error> : ''}
+      </LabelAndError>
+      <Input value={value} {...rest} style={{ fontSize: calcFontSize(value) }} />
+    </LabelInputContainer>
   )
 }
+
+const LabelInputContainer = styled.div`
+  width: 350px;
+  height: 70px;
+  border: 1px solid ${({ theme }) => theme.borderColor};
+  border-radius: 20px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`
+
+const LabelAndError = styled.div`
+  font-weight: lighter;
+  font-size: 14px;
+  display: flex;
+`
+
+const Label = styled.div`
+  margin-right: 20px;
+`
+
+const Error = styled.div`
+  color: orangered;
+`
+
+const Input = styled.input`
+  background: transparent;
+  border: none;
+  font-weight: lighter;
+  font-size: 19px;
+  color: ${({ theme }) => theme.textColor};
+  &:focus {
+    outline: 0;
+  }
+`
 
 LabelInput.propTypes = {
   label: PropTypes.string,

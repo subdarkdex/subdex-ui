@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { EventsContext } from '../../context/EventsContext'
-import './swap-events.css'
+import styled from 'styled-components'
 import describe from '../../utils/time'
 import { convertBalance, shortenNumber } from '../../utils/conversion'
 import { assetMap } from '../../assets'
@@ -16,12 +16,12 @@ export default function SwapEvents() {
   }, [])
   const { swapEvents } = useContext(EventsContext)
   return (
-    <table className="swap-events">
+    <SwapEventsTable>
       <thead>
         <tr>
-          <th className="swap-events-sold">Sold</th>
-          <th className="swap-events-bought">Bought</th>
-          <th className="swap-events-time">Time</th>
+          <SwapEventsTableHeaderSold>Sold</SwapEventsTableHeaderSold>
+          <SwapEventsTableHeaderBought>Bought</SwapEventsTableHeaderBought>
+          <SwapEventsTableHeaderTime>Time</SwapEventsTableHeaderTime>
         </tr>
       </thead>
       <tbody>
@@ -62,6 +62,22 @@ export default function SwapEvents() {
           </tr>
         ))}
       </tbody>
-    </table>
+    </SwapEventsTable>
   )
 }
+
+const SwapEventsTable = styled.table`
+  width: 100%;
+`
+
+const SwapEventsTableHeaderSold = styled.th`
+  width: 35%;
+`
+
+const SwapEventsTableHeaderBought = styled.th`
+  width: 35%;
+`
+
+const SwapEventsTableHeaderTime = styled.th`
+  width: 30%;
+`
