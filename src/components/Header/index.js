@@ -2,12 +2,16 @@ import React from 'react'
 import Node from '../Node'
 import Account from '../Account'
 import styled from 'styled-components'
+import Settings from '../Settings'
 
 export default function Header() {
   return (
     <HeaderBar>
       <Node />
-      <Account />
+      <AccountAndSettings>
+        <Account />
+        <Settings />
+      </AccountAndSettings>
     </HeaderBar>
   )
 }
@@ -21,4 +25,10 @@ const HeaderBar = styled.div`
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
+`
+
+const AccountAndSettings = styled.div`
+  display: flex;
+  align-items: center;
+  justify-items: center;
 `
