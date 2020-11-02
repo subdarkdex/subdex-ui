@@ -50,6 +50,8 @@
     ]
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "@polkadot/api": "^2.0.1",
     "@polkadot/extension-dapp": "^0.34.1",
     "@polkadot/keyring": "3.5.1",
