@@ -62,4 +62,18 @@ export const GlobalStyles = createGlobalStyle`
     display: flex;
     align-items: center;
   }
+  
+  .ui.popup {
+    color: ${({ theme }) => theme.settingsTextColor};
+    box-shadow: ${({ theme }) => theme.panelBoxShadow};
+    background: ${({ theme }) => theme.settingsBackground};
+    border-radius: 0.8em;
+    min-width: 290px;
+    max-width: 290px;
+    padding: 20px;
+  }
+  
+  .ui.bottom.popup:before {
+    background: ${({ theme }) => theme.settingsBackground};
+  }
 `
