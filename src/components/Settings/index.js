@@ -1,6 +1,7 @@
 import React from 'react'
 import { Popup } from 'semantic-ui-react'
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined'
+import SettingsGroup from './SettingsGroup'
 
 const Settings = () => {
   return (
@@ -9,7 +10,14 @@ const Settings = () => {
       hoverable
       position={'top right'}
     >
-      Place holder Transactional settings User interface
+      <SettingsGroup header={'Transaction Settings'}>
+        <span>place holder 1</span>
+        <span>place holder 2</span>
+      </SettingsGroup>
+      <SettingsGroup header={'Interface Settings'}>
+        <span>place holder 1</span>
+        <span>place holder 2</span>
+      </SettingsGroup>
     </Popup>
   )
 }
