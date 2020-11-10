@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks'
-import { useDarkMode } from './useDarkMode'
+import useDarkMode from './useDarkMode'
 import MatchMediaMock from 'jest-matchmedia-mock'
 import 'jest-localstorage-mock'
 
