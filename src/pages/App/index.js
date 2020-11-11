@@ -1,4 +1,4 @@
-import React, { createRef } from 'react'
+import React, { createRef, useContext } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import SwapMarket from '../../components/SwapMarket'
 import PoolMarket from '../../components/PoolMarket'
@@ -14,10 +14,14 @@ import DeveloperConsole from '../../components/DeveloperConsole'
 import { GlobalStyles } from './GlobalStyles'
 import { lightTheme, darkTheme } from './themes'
 import { ThemeProvider } from 'styled-components'
-import { useDarkMode } from '../../hooks'
+import { ThemeContext, ThemeContextProvider } from '../../context/ThemeContext'
 
 function Main() {
   const { apiState, keyringState, apiError } = useSubstrate()
+  const { theme, themeConfigured } = useContext(ThemeContext)
+  if (!themeConfigured) {
+    return <div />
+  }
 
   const loader = (text) => (
     <Dimmer active>
@@ -46,37 +50,34 @@ function Main() {
   const contextRef = createRef()
 
   return (
-    <div ref={contextRef}>
-      <HashRouter>
-        <Header />
-        <EventsContextProvider>
-          <Switch>
-            <Route exact strict path="/swap" component={SwapMarket} />
-            <Route exact strict path="/pool" component={PoolMarket} />
-            <Route exact strict path="/take" component={TakeMarket} />
-            <Route component={RedirectToSwapMarket} />
-          </Switch>
-        </EventsContextProvider>
-      </HashRouter>
-      <DeveloperConsole />
-    </div>
+    <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+      <GlobalStyles />
+      <div ref={contextRef}>
+        <HashRouter>
+          <Header />
+          <EventsContextProvider>
+            <Switch>
+              <Route exact strict path="/swap" component={SwapMarket} />
+              <Route exact strict path="/pool" component={PoolMarket} />
+              <Route exact strict path="/take" component={TakeMarket} />
+              <Route component={RedirectToSwapMarket} />
+            </Switch>
+          </EventsContextProvider>
+        </HashRouter>
+        <DeveloperConsole />
+      </div>
+    </ThemeProvider>
   )
 }
 
 export default function App() {
-  const { theme, themeConfigured } = useDarkMode()
-  const themeMode = theme === 'light' ? lightTheme : darkTheme
-  if (!themeConfigured) {
-    return <div />
-  }
   return (
-    <ThemeProvider theme={themeMode}>
-      <GlobalStyles />
+    <ThemeContextProvider>
       <SubstrateContextProvider>
         <AccountContextProvider>
           <Main />
         </AccountContextProvider>
       </SubstrateContextProvider>
-    </ThemeProvider>
+    </ThemeContextProvider>
   )
 }
