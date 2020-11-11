@@ -5,7 +5,7 @@ import { Dropdown } from 'semantic-ui-react'
 import BalanceAnnotation from '../BalanceAnnotation'
 import { AccountContext } from '../../context/AccountContext'
 import { assetMap } from '../../assets'
-import { useDarkMode } from '../../hooks/useDarkMode'
+import { useDarkMode } from '../../hooks'
 
 function TokenInput(props) {
   const { account } = useContext(AccountContext)

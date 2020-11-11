@@ -9,7 +9,7 @@ import { AccountContext } from '../../context/AccountContext'
 import { convertAmount, convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks/useDarkMode'
+import { useDarkMode } from '../../hooks'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()

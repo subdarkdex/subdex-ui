@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export const useDarkMode = () => {
+const useDarkMode = () => {
   const [theme, setTheme] = useState('light')
   const [themeConfigured, setThemeConfigured] = useState(false)
 
@@ -31,3 +31,5 @@ export const useDarkMode = () => {
 
   return { theme, toggleTheme, themeConfigured }
 }
+
+export default useDarkMode

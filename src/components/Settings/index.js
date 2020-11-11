@@ -2,6 +2,7 @@ import React from 'react'
 import { Popup } from 'semantic-ui-react'
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined'
 import SettingsGroup from './SettingsGroup'
+import Slippage from './Slippage'
 
 const Settings = () => {
   return (
@@ -11,8 +12,7 @@ const Settings = () => {
       position={'top right'}
     >
       <SettingsGroup header={'Transaction Settings'}>
-        <span>place holder 1</span>
-        <span>place holder 2</span>
+        <Slippage />
       </SettingsGroup>
       <SettingsGroup header={'Interface Settings'}>
         <span>place holder 1</span>

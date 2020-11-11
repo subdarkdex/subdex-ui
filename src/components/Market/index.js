@@ -4,7 +4,7 @@ import lightLogo from './light-logo.png'
 import Panel from '../Panel'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { useDarkMode } from '../../hooks/useDarkMode'
+import { useDarkMode } from '../../hooks'
 
 function Market({ marketPlace, marketEvents }) {
   const { theme } = useDarkMode()

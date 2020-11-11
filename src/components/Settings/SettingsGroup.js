@@ -20,6 +20,7 @@ const SettingsGroupContainer = styled.div`
 
 const Header = styled.div`
   font-weight: 600;
+  margin-bottom: 10px;
 `
 
 export default SettingsGroup

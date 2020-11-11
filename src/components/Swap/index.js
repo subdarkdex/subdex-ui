@@ -11,7 +11,7 @@ import { isValidAddress } from '../../utils/address'
 import BigNumber from 'bignumber.js'
 import { convertAmount, convertBalance, shortenNumber, truncDecimals } from '../../utils/conversion'
 import { MarketPlace } from '../Market'
-import { useDarkMode } from '../../hooks/useDarkMode'
+import { useDarkMode } from '../../hooks'
 
 export default function Swap() {
   const { api, keyring } = useSubstrate()

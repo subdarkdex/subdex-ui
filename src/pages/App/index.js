@@ -14,7 +14,7 @@ import DeveloperConsole from '../../components/DeveloperConsole'
 import { GlobalStyles } from './GlobalStyles'
 import { lightTheme, darkTheme } from './themes'
 import { ThemeProvider } from 'styled-components'
-import { useDarkMode } from '../../hooks/useDarkMode'
+import { useDarkMode } from '../../hooks'
 
 function Main() {
   const { apiState, keyringState, apiError } = useSubstrate()
