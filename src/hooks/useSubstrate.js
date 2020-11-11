@@ -4,7 +4,7 @@ import { web3Accounts, web3Enable } from '@polkadot/extension-dapp'
 import keyring from '@polkadot/ui-keyring'
 
 import config from '../config'
-import { SubstrateContext } from '../context/SubstrateContext'
+import { SubstrateContext } from '../context'
 
 const useSubstrate = () => {
   const [state, dispatch] = useContext(SubstrateContext)

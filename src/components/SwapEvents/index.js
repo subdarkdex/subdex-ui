@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { EventsContext } from '../../context/EventsContext'
+import { EventsContext } from '../../context'
 import styled from 'styled-components'
 import describe from '../../utils/time'
 import { convertBalance, shortenNumber } from '../../utils/conversion'

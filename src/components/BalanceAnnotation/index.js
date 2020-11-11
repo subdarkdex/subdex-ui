@@ -5,7 +5,7 @@ import { assetMap } from '../../assets'
 import PropTypes from 'prop-types'
 import 'react-tippy/dist/tippy.css'
 import { Tooltip } from 'react-tippy'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext } from '../../context'
 
 function BalanceAnnotation(props) {
   const { balances, setBalances } = useContext(AccountContext)

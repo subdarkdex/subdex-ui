@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { Radio } from 'semantic-ui-react'
-import { ThemeContext } from '../../context/ThemeContext'
+import { ThemeContext } from '../../context'
 
 function DarkMode() {
   const { theme, toggleTheme } = useContext(ThemeContext)

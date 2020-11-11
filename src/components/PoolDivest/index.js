@@ -5,12 +5,11 @@ import assets, { assetMap, EDG_ASSET_ID, KSM_ASSET_ID } from '../../assets'
 import LabelInput from '../LabelInput'
 import LabelOutput from '../LabelOutput'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, ThemeContext } from '../../context'
 import { TxButton } from '../TxButton'
 import { convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { ThemeContext } from '../../context/ThemeContext'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()

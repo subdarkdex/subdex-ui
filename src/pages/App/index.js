@@ -5,16 +5,19 @@ import PoolMarket from '../../components/PoolMarket'
 import TakeMarket from '../../components/TakeMarket'
 import { RedirectToSwapMarket } from '../../utils/redirects'
 import useSubstrate from '../../hooks/useSubstrate'
-import { SubstrateContextProvider } from '../../context'
+import {
+  SubstrateContextProvider,
+  AccountContextProvider,
+  EventsContextProvider,
+  ThemeContext,
+  ThemeContextProvider,
+} from '../../context'
 import { Grid, Message, Dimmer, Loader } from 'semantic-ui-react'
-import { AccountContextProvider } from '../../context/AccountContext'
 import Header from '../../components/Header'
-import { EventsContextProvider } from '../../context/EventsContext'
 import DeveloperConsole from '../../components/DeveloperConsole'
 import { GlobalStyles } from './GlobalStyles'
 import { lightTheme, darkTheme } from './themes'
 import { ThemeProvider } from 'styled-components'
-import { ThemeContext, ThemeContextProvider } from '../../context/ThemeContext'
 
 function Main() {
   const { apiState, keyringState, apiError } = useSubstrate()

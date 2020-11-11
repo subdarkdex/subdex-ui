@@ -4,7 +4,7 @@ import lightLogo from './light-logo.png'
 import Panel from '../Panel'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { ThemeContext } from '../../context/ThemeContext'
+import { ThemeContext } from '../../context'
 
 function Market({ marketPlace, marketEvents }) {
   const { theme } = useContext(ThemeContext)

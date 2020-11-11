@@ -5,11 +5,10 @@ import TokenInput from '../TokenInput'
 import LabelOutput from '../LabelOutput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, ThemeContext } from '../../context'
 import { convertAmount, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { ThemeContext } from '../../context/ThemeContext'
 
 export default function PoolLaunch() {
   const { api, keyring } = useSubstrate()

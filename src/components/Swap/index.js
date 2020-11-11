@@ -5,13 +5,12 @@ import assets, { assetMap, EDG_ASSET_ID, KSM_ASSET_ID } from '../../assets'
 import LabelInput from '../LabelInput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, ThemeContext } from '../../context'
 import LabelOutput from '../LabelOutput'
 import { isValidAddress } from '../../utils/address'
 import BigNumber from 'bignumber.js'
 import { convertAmount, convertBalance, shortenNumber, truncDecimals } from '../../utils/conversion'
 import { MarketPlace } from '../Market'
-import { ThemeContext } from '../../context/ThemeContext'
 
 export default function Swap() {
   const { api, keyring } = useSubstrate()

@@ -3,9 +3,8 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { Dropdown } from 'semantic-ui-react'
 import BalanceAnnotation from '../BalanceAnnotation'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, ThemeContext } from '../../context'
 import { assetMap } from '../../assets'
-import { ThemeContext } from '../../context/ThemeContext'
 
 function TokenInput(props) {
   const { account } = useContext(AccountContext)
