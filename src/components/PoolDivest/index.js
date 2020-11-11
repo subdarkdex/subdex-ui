@@ -10,11 +10,11 @@ import { TxButton } from '../TxButton'
 import { convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks'
+import { ThemeContext } from '../../context/ThemeContext'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(ThemeContext)
   const { account } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Divest your tokens from the liquidity pool by burning your DarkDEX shares'

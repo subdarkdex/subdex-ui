@@ -9,11 +9,11 @@ import { AccountContext } from '../../context/AccountContext'
 import { convertAmount, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks'
+import { ThemeContext } from '../../context/ThemeContext'
 
 export default function PoolLaunch() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(ThemeContext)
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Cannot find the pool? Add the desirable token pair and become its first liquidity provider'

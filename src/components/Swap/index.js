@@ -11,11 +11,11 @@ import { isValidAddress } from '../../utils/address'
 import BigNumber from 'bignumber.js'
 import { convertAmount, convertBalance, shortenNumber, truncDecimals } from '../../utils/conversion'
 import { MarketPlace } from '../Market'
-import { useDarkMode } from '../../hooks'
+import { ThemeContext } from '../../context/ThemeContext'
 
 export default function Swap() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(ThemeContext)
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const [status, setStatus] = useState('')

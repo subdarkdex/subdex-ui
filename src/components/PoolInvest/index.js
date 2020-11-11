@@ -9,11 +9,11 @@ import { AccountContext } from '../../context/AccountContext'
 import { convertAmount, convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks'
+import { ThemeContext } from '../../context/ThemeContext'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(ThemeContext)
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Invest your tokens to the liquidity pool and earn 3% of the trading fees'
