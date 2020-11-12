@@ -9,8 +9,8 @@ import {
   SubstrateContextProvider,
   AccountContextProvider,
   EventsContextProvider,
-  ThemeContext,
-  ThemeContextProvider,
+  SettingsContext,
+  SettingsContextProvider,
 } from '../../context'
 import { Grid, Message, Dimmer, Loader } from 'semantic-ui-react'
 import Header from '../../components/Header'
@@ -21,7 +21,7 @@ import { ThemeProvider } from 'styled-components'
 
 function Main() {
   const { apiState, keyringState, apiError } = useSubstrate()
-  const { theme, themeConfigured } = useContext(ThemeContext)
+  const { theme, themeConfigured } = useContext(SettingsContext)
   if (!themeConfigured) {
     return <div />
   }
@@ -75,12 +75,12 @@ function Main() {
 
 export default function App() {
   return (
-    <ThemeContextProvider>
+    <SettingsContextProvider>
       <SubstrateContextProvider>
         <AccountContextProvider>
           <Main />
         </AccountContextProvider>
       </SubstrateContextProvider>
-    </ThemeContextProvider>
+    </SettingsContextProvider>
   )
 }

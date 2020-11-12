@@ -1,10 +1,10 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
 import { Radio } from 'semantic-ui-react'
-import { ThemeContext } from '../../context'
+import { SettingsContext } from '../../context'
 
 function DarkMode() {
-  const { theme, toggleTheme } = useContext(ThemeContext)
+  const { theme, toggleTheme } = useContext(SettingsContext)
   return (
     <DarkModeContainer>
       <div>Toggle Dark Mode</div>

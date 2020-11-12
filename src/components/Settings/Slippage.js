@@ -1,17 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
 import 'react-tippy/dist/tippy.css'
 import { Tooltip } from 'react-tippy'
 import { Form } from 'semantic-ui-react'
-import { useSlippage } from '../../hooks'
+import { SettingsContext } from '../../context'
 
 function Slippage() {
-  const { slippage, saveSlippage } = useSlippage()
+  const { slippage, saveSlippage } = useContext(SettingsContext)
   const handleChange = (e, { value }) => saveSlippage(value)
   return (
     <SlippageContainer>
       <Tooltip
-        html={'Your transaction will revert if the price changes unfavorably by this percentage'}
+        html={<Tip>Your transaction will revert if the price changes unfavorably by this percentage</Tip>}
         duration={1000}
         animation="fade"
         position="left"
@@ -40,4 +40,8 @@ const SlippageContainer = styled.div`
   width: 100%;
 `
 
+const Tip = styled.div`
+  width: 180px;
+  text-align: left;
+`
 export default Slippage

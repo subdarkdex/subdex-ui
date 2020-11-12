@@ -5,7 +5,7 @@ import assets, { assetMap, EDG_ASSET_ID, KSM_ASSET_ID } from '../../assets'
 import LabelInput from '../LabelInput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext, ThemeContext } from '../../context'
+import { AccountContext, SettingsContext } from '../../context'
 import LabelOutput from '../LabelOutput'
 import { isValidAddress } from '../../utils/address'
 import BigNumber from 'bignumber.js'
@@ -14,7 +14,7 @@ import { MarketPlace } from '../Market'
 
 export default function Swap() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useContext(ThemeContext)
+  const { theme } = useContext(SettingsContext)
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const [status, setStatus] = useState('')

@@ -1,7 +1,7 @@
 import { SubstrateContext, SubstrateContextProvider } from './SubstrateContext'
 import { AccountContext, AccountContextProvider } from './AccountContext'
 import { EventsContext, EventsContextProvider } from './EventsContext'
-import { ThemeContext, ThemeContextProvider } from './ThemeContext'
+import { SettingsContext, SettingsContextProvider } from './SettingsContext'
 
 export {
   SubstrateContext,
@@ -10,6 +10,6 @@ export {
   AccountContextProvider,
   EventsContext,
   EventsContextProvider,
-  ThemeContext,
-  ThemeContextProvider,
+  SettingsContext,
+  SettingsContextProvider,
 }

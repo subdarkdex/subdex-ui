@@ -4,10 +4,10 @@ import lightLogo from './light-logo.png'
 import Panel from '../Panel'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { ThemeContext } from '../../context'
+import { SettingsContext } from '../../context'
 
 function Market({ marketPlace, marketEvents }) {
-  const { theme } = useContext(ThemeContext)
+  const { theme } = useContext(SettingsContext)
   return (
     <MarketContainer>
       <Img src={theme === 'light' ? lightLogo : darkLogo} alt="Logo" />
