@@ -1,23 +1,30 @@
-import React, { createRef } from 'react'
+import React, { createRef, useContext } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import SwapMarket from '../../components/SwapMarket'
 import PoolMarket from '../../components/PoolMarket'
 import TakeMarket from '../../components/TakeMarket'
 import { RedirectToSwapMarket } from '../../utils/redirects'
 import useSubstrate from '../../hooks/useSubstrate'
-import { SubstrateContextProvider } from '../../context'
+import {
+  SubstrateContextProvider,
+  AccountContextProvider,
+  EventsContextProvider,
+  SettingsContext,
+  SettingsContextProvider,
+} from '../../context'
 import { Grid, Message, Dimmer, Loader } from 'semantic-ui-react'
-import { AccountContextProvider } from '../../context/AccountContext'
 import Header from '../../components/Header'
-import { EventsContextProvider } from '../../context/EventsContext'
 import DeveloperConsole from '../../components/DeveloperConsole'
 import { GlobalStyles } from './GlobalStyles'
 import { lightTheme, darkTheme } from './themes'
 import { ThemeProvider } from 'styled-components'
-import { useDarkMode } from '../../hooks'
 
 function Main() {
   const { apiState, keyringState, apiError } = useSubstrate()
+  const { theme, themeConfigured } = useContext(SettingsContext)
+  if (!themeConfigured) {
+    return <div />
+  }
 
   const loader = (text) => (
     <Dimmer active>
@@ -46,37 +53,34 @@ function Main() {
   const contextRef = createRef()
 
   return (
-    <div ref={contextRef}>
-      <HashRouter>
-        <Header />
-        <EventsContextProvider>
-          <Switch>
-            <Route exact strict path="/swap" component={SwapMarket} />
-            <Route exact strict path="/pool" component={PoolMarket} />
-            <Route exact strict path="/take" component={TakeMarket} />
-            <Route component={RedirectToSwapMarket} />
-          </Switch>
-        </EventsContextProvider>
-      </HashRouter>
-      <DeveloperConsole />
-    </div>
+    <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
+      <GlobalStyles />
+      <div ref={contextRef}>
+        <HashRouter>
+          <Header />
+          <EventsContextProvider>
+            <Switch>
+              <Route exact strict path="/swap" component={SwapMarket} />
+              <Route exact strict path="/pool" component={PoolMarket} />
+              <Route exact strict path="/take" component={TakeMarket} />
+              <Route component={RedirectToSwapMarket} />
+            </Switch>
+          </EventsContextProvider>
+        </HashRouter>
+        <DeveloperConsole />
+      </div>
+    </ThemeProvider>
   )
 }
 
 export default function App() {
-  const { theme, themeConfigured } = useDarkMode()
-  const themeMode = theme === 'light' ? lightTheme : darkTheme
-  if (!themeConfigured) {
-    return <div />
-  }
   return (
-    <ThemeProvider theme={themeMode}>
-      <GlobalStyles />
+    <SettingsContextProvider>
       <SubstrateContextProvider>
         <AccountContextProvider>
           <Main />
         </AccountContextProvider>
       </SubstrateContextProvider>
-    </ThemeProvider>
+    </SettingsContextProvider>
   )
 }

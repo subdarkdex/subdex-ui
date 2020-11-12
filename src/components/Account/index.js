@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext.js'
+import { AccountContext } from '../../context'
 import styled from 'styled-components'
 import { Dropdown } from 'semantic-ui-react'
 import shorten from '../../utils/address'

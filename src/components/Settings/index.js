@@ -3,6 +3,7 @@ import { Popup } from 'semantic-ui-react'
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined'
 import SettingsGroup from './SettingsGroup'
 import Slippage from './Slippage'
+import DarkMode from './DarkMode'
 
 const Settings = () => {
   return (
@@ -15,8 +16,7 @@ const Settings = () => {
         <Slippage />
       </SettingsGroup>
       <SettingsGroup header={'Interface Settings'}>
-        <span>place holder 1</span>
-        <span>place holder 2</span>
+        <DarkMode />
       </SettingsGroup>
     </Popup>
   )

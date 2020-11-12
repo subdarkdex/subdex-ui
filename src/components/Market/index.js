@@ -1,13 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import darkLogo from './dark-logo.png'
 import lightLogo from './light-logo.png'
 import Panel from '../Panel'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import { useDarkMode } from '../../hooks'
+import { SettingsContext } from '../../context'
 
 function Market({ marketPlace, marketEvents }) {
-  const { theme } = useDarkMode()
+  const { theme } = useContext(SettingsContext)
   return (
     <MarketContainer>
       <Img src={theme === 'light' ? lightLogo : darkLogo} alt="Logo" />

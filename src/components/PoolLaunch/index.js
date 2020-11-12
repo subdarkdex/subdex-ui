@@ -5,15 +5,14 @@ import TokenInput from '../TokenInput'
 import LabelOutput from '../LabelOutput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, SettingsContext } from '../../context'
 import { convertAmount, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks'
 
 export default function PoolLaunch() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(SettingsContext)
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Cannot find the pool? Add the desirable token pair and become its first liquidity provider'

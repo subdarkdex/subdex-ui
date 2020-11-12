@@ -5,15 +5,14 @@ import TokenInput from '../TokenInput'
 import LabelOutput from '../LabelOutput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, SettingsContext } from '../../context'
 import { convertAmount, convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(SettingsContext)
   const { account, balances } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Invest your tokens to the liquidity pool and earn 3% of the trading fees'

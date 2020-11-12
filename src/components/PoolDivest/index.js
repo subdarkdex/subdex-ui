@@ -5,16 +5,15 @@ import assets, { assetMap, EDG_ASSET_ID, KSM_ASSET_ID } from '../../assets'
 import LabelInput from '../LabelInput'
 import LabelOutput from '../LabelOutput'
 import useSubstrate from '../../hooks/useSubstrate'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, SettingsContext } from '../../context'
 import { TxButton } from '../TxButton'
 import { convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
-import { useDarkMode } from '../../hooks'
 
 export default function PoolInvest() {
   const { api, keyring } = useSubstrate()
-  const { theme } = useDarkMode()
+  const { theme } = useContext(SettingsContext)
   const { account } = useContext(AccountContext)
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Divest your tokens from the liquidity pool by burning your DarkDEX shares'

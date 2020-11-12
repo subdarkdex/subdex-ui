@@ -3,13 +3,12 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { Dropdown } from 'semantic-ui-react'
 import BalanceAnnotation from '../BalanceAnnotation'
-import { AccountContext } from '../../context/AccountContext'
+import { AccountContext, SettingsContext } from '../../context'
 import { assetMap } from '../../assets'
-import { useDarkMode } from '../../hooks'
 
 function TokenInput(props) {
   const { account } = useContext(AccountContext)
-  const { theme } = useDarkMode()
+  const { theme } = useContext(SettingsContext)
   const { label, asset, amount, options, error, onChangeAsset, onChangeAmount, dropdownDisabled, ...rest } = props
   const [assetId, setAssetId] = useState(asset)
   const handleChangeAsset = (assetId) => {
