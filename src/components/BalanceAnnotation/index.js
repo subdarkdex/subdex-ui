@@ -19,8 +19,8 @@ function BalanceAnnotation(props) {
     assetId !== undefined &&
       assetId !== null &&
       address &&
-      api.query.genericAsset
-        .freeBalance(assetId, address, (balance) => {
+      api.query.dexPallet
+        .assetBalances(address, assetId, (balance) => {
           const assetBalance = convertBalance(assetId, balance.toString())
           setBalances(balances.set(assetId, assetBalance))
           setAccountBalance(assetBalance.toString())
