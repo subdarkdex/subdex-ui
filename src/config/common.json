@@ -5,6 +5,7 @@
   "CUSTOM_TYPES": {
     "Address": "AccountId",
     "LookupSource": "AccountId",
+    "RefCount": "u8",
     "AssetId": "u64",
     "Shares": "BalanceOf<T>",
     "ParaChainAssetId": "Option<AssetId>",
