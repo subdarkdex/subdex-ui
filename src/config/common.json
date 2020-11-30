@@ -7,11 +7,10 @@
     "LookupSource": "AccountId",
     "RefCount": "u8",
     "AssetId": "u64",
-    "Shares": "BalanceOf<T>",
     "ParaChainAssetId": "Option<AssetId>",
     "DexAssetId": "AssetIdOf<T>",
     "AssetIdOf": "AssetId",
-    "TreasuryFee": "Option<BalanceOf<T>>",
+    "TreasuryFee": "Option<Balance>",
     "ValidationFunction": "Vec<u8>",
     "ValidationFunctionParams": {
       "max_code_size": "u32",
@@ -19,22 +18,26 @@
       "code_upgrade_allowed": "Option<RelayChainBlockNumber>"
     },
     "Exchange": {
-      "first_asset_pool": "BalanceOf<T>",
-      "second_asset_pool": "BalanceOf<T>",
-      "invariant": "BalanceOf<T>",
-      "total_shares": "BalanceOf<T>",
-      "shares": "BTreeMap<T::AccountId, BalanceOf<T>>",
-      "price1_cumulative_last": "BalanceOf<T>",
-      "price2_cumulative_last": "BalanceOf<T>",
-      "last_timestamp": "T::IMoment"
+      "first_asset_pool": "Balance",
+      "second_asset_pool": "Balance",
+      "invariant": "Balance",
+      "total_shares": "Balance",
+      "last_timestamp": "IMoment",
+      "price1_cumulative_last": "Balance",
+      "price2_cumulative_last": "Balance",
+      "shares": "BTreeMap<AccountId, Balance>"
     },
+    "IMoment": "u64",
     "DexTreasury": {
       "dex_account": "AccountId",
       "treasury_fee_rate_nominator": "Balance",
       "treasury_fee_rate_denominator": "Balance"
     },
     "Asset": {
-      "_enum": ["MainNetworkCurrency", "ParachainAsset(AssetId)"]
+      "_enum": {
+        "MainNetworkCurrency": null,
+        "ParachainAsset": "(AssetId)"
+      }
     }
   }
 }

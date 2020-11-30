@@ -22,37 +22,27 @@ export default function Swap() {
   const [fromAssetAmount, setFromAssetAmount] = useState('')
   const [fromAssetError, setFromAssetError] = useState('')
   const [fromAssetPool, setFromAssetPool] = useState('')
-  const [fromKsmPool, setFromKsmPool] = useState('')
-  const [fromExchangeInvariant, setFromExchangeInvariant] = useState('')
   const [toAsset, setToAsset] = useState(EDG_ASSET_ID)
   const [toAssetAmount, setToAssetAmount] = useState('')
   const [toAssetPool, setToAssetPool] = useState('')
-  const [toKsmPool, setToKsmPool] = useState('')
-  const [toExchangeInvariant, setToExchangeInvariant] = useState('')
   const [toAssetError, setToAssetError] = useState('')
   const [receiver, setReceiver] = useState(account)
   const [receiverError, setReceiverError] = useState('')
   const [price, setPrice] = useState('')
   const [minReceived, setMinReceived] = useState('')
-  const [fromExchangeExists, setFromExchangeExists] = useState(false)
-  const [toExchangeExists, setToExchangeExists] = useState(false)
+  const [exchangeInvariant, setExchangeInvariant] = useState('')
+  const [exchangeExists, setExchangeExists] = useState(false)
 
   const validate = useCallback(
     (fromAsset, fromAssetAmount, toAsset, toAssetAmount) => {
+      console.log('validate is called with params:', fromAsset, fromAssetAmount, toAsset, toAssetAmount)
       if (fromAsset === toAsset) {
         setFromAssetError('it cannot be the same asset')
         setToAssetError('it cannot be the same asset')
       } else {
+        console.log('balances', balances)
         if (fromAssetAmount && (isNaN(fromAssetAmount) || fromAssetAmount <= 0)) {
           setFromAssetError('invalid amount')
-        } else if (
-          fromAsset === KSM_ASSET_ID &&
-          !!toKsmPool &&
-          new BigNumber(toKsmPool).lte(convertAmount(fromAsset, fromAssetAmount))
-        ) {
-          setFromAssetError(
-            `exceeds pool size: ${shortenNumber(convertBalance(KSM_ASSET_ID, toKsmPool).toString(), 8)}`
-          )
         } else if (!!fromAssetPool && new BigNumber(fromAssetPool).lte(convertAmount(fromAsset, fromAssetAmount))) {
           setFromAssetError(
             `exceeds pool size: ${shortenNumber(convertBalance(fromAsset, fromAssetPool).toString(), 8)}`
@@ -64,14 +54,6 @@ export default function Swap() {
         }
         if (toAssetAmount && (isNaN(toAssetAmount) || toAssetAmount <= 0)) {
           setToAssetError('invalid amount')
-        } else if (
-          toAsset === KSM_ASSET_ID &&
-          !!fromKsmPool &&
-          new BigNumber(fromKsmPool).lte(convertAmount(toAsset, toAssetAmount))
-        ) {
-          setToAssetError(
-            `exceeds pool size: ${shortenNumber(convertBalance(KSM_ASSET_ID, fromKsmPool).toString(), 8)}`
-          )
         } else if (!!toAssetPool && new BigNumber(toAssetPool).lte(convertAmount(toAsset, toAssetAmount))) {
           setToAssetError(`exceeds pool size: ${shortenNumber(convertBalance(toAsset, toAssetPool).toString(), 8)}`)
         } else if (balances.get(toAsset) && balances.get(toAsset).lte(new BigNumber(toAssetAmount))) {
@@ -81,7 +63,28 @@ export default function Swap() {
         }
       }
     },
-    [balances, fromAssetPool, fromKsmPool, toAssetPool, toKsmPool]
+    [balances, fromAssetPool, toAssetPool]
+  )
+
+  const updateAssetStates = useCallback(
+    (exchange) => {
+      if (exchange.get('invariant').toString() === '0') {
+        setExchangeExists(false)
+        setFromAssetError('no exchange exists')
+        setToAssetError('no exchange exists')
+        setFromAssetPool('')
+        setToAssetPool('')
+        setExchangeInvariant('')
+      } else {
+        setExchangeExists(true)
+        const fromAssetPool = fromAsset < toAsset ? exchange.get('first_asset_pool') : exchange.get('second_asset_pool')
+        const toAssetPool = fromAsset < toAsset ? exchange.get('second_asset_pool') : exchange.get('first_asset_pool')
+        setFromAssetPool(fromAssetPool.toString())
+        setToAssetPool(toAssetPool.toString())
+        setExchangeInvariant(exchange.get('invariant').toString())
+      }
+    },
+    [fromAsset, toAsset]
   )
 
   useEffect(() => setReceiver(account), [account])
@@ -92,36 +95,22 @@ export default function Swap() {
 
   useEffect(() => {
     validate(fromAsset, fromAssetAmount, toAsset, toAssetAmount)
-    let fromAssetUnsub, toAssetUnsub
-    if (fromAsset === KSM_ASSET_ID) {
-      setFromExchangeExists(true)
-    } else {
-      api.query.dexPallet
-        .exchanges(fromAsset, (exchange) => {
-          updateFromAssetStates(exchange)
-        })
-        .then((unsub) => {
-          fromAssetUnsub = unsub
-        })
-        .catch(console.error)
-    }
-    if (toAsset === KSM_ASSET_ID) {
-      setToExchangeExists(true)
-    } else {
-      api.query.dexPallet
-        .exchanges(toAsset, (exchange) => {
-          updateToAssetStates(exchange)
-        })
-        .then((unsub) => {
-          toAssetUnsub = unsub
-        })
-        .catch(console.error)
-    }
+    let unsubscribe
+    const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
+    const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
+    console.log('dexPallet', api.query.dexPallet)
+    api.query.dexPallet
+      .exchanges(firstAsset, secondAsset, (exchange) => {
+        updateAssetStates(exchange)
+      })
+      .then((unsub) => {
+        unsubscribe = unsub
+      })
+      .catch(console.error)
     return () => {
-      fromAssetUnsub && fromAssetUnsub()
-      toAssetUnsub && toAssetUnsub()
+      unsubscribe && unsubscribe()
     }
-  }, [api.query.dexPallet, fromAsset, fromAssetAmount, toAsset, toAssetAmount, validate])
+  }, [api.query.dexPallet, fromAsset, fromAssetAmount, toAsset, toAssetAmount, validate, updateAssetStates])
 
   useEffect(() => {
     const setToAssetAmountAndPrice = (amountIn, amountOut) => {
@@ -132,91 +121,28 @@ export default function Swap() {
         `${amountOut.div(amountIn).toString()} ${assetMap.get(toAsset).symbol} /  ${assetMap.get(fromAsset).symbol}`
       )
     }
-    if (!fromAssetError && !toAssetError && fromAssetAmount && fromExchangeExists && toExchangeExists) {
+    if (!fromAssetError && !toAssetError && fromAssetAmount && exchangeExists) {
       const amountIn = convertAmount(fromAsset, fromAssetAmount)
-      if (fromAsset === KSM_ASSET_ID) {
-        const amountOut = calculateAmountOut(amountIn, fromAsset, toAsset, toKsmPool, toAssetPool, toExchangeInvariant)
-        setToAssetAmountAndPrice(amountIn, amountOut)
-      } else if (toAsset === KSM_ASSET_ID) {
-        const amountOut = calculateAmountOut(
-          amountIn,
-          fromAsset,
-          toAsset,
-          fromAssetPool,
-          fromKsmPool,
-          fromExchangeInvariant
-        )
-        setToAssetAmountAndPrice(amountIn, amountOut)
-      } else {
-        const ksmAmount = calculateAmountOut(
-          amountIn,
-          fromAsset,
-          KSM_ASSET_ID,
-          fromAssetPool,
-          fromKsmPool,
-          fromExchangeInvariant
-        )
-        const amountOut = calculateAmountOut(
-          ksmAmount,
-          KSM_ASSET_ID,
-          toAsset,
-          toKsmPool,
-          toAssetPool,
-          toExchangeInvariant
-        )
-        setToAssetAmountAndPrice(amountIn, amountOut)
-      }
+      const amountOut = calculateAmountOut(amountIn, fromAsset, toAsset, toAssetPool, exchangeInvariant)
+      setToAssetAmountAndPrice(amountIn, amountOut)
     } else {
       setToAssetAmount('')
       setPrice('')
       setMinReceived('')
     }
   }, [
+    fromAsset,
     fromAssetError,
     fromAssetAmount,
-    toAssetError,
-    toAsset,
-    fromExchangeExists,
-    toExchangeExists,
-    fromAsset,
-    toKsmPool,
-    toAssetPool,
-    toExchangeInvariant,
     fromAssetPool,
-    fromKsmPool,
-    fromExchangeInvariant,
+    toAsset,
+    toAssetError,
+    toAssetPool,
+    exchangeExists,
+    exchangeInvariant,
   ])
 
-  const updateFromAssetStates = (exchange) => {
-    if (exchange.get('invariant').toString() === '0') {
-      setFromExchangeExists(false)
-      setFromAssetError('no exchange exists')
-      setFromKsmPool('')
-      setFromAssetPool('')
-      setFromExchangeInvariant('')
-    } else {
-      setFromExchangeExists(true)
-      setFromKsmPool(exchange.get('ksm_pool').toString())
-      setFromAssetPool(exchange.get('token_pool').toString())
-      setFromExchangeInvariant(exchange.get('invariant').toString())
-    }
-  }
-
-  function updateToAssetStates(exchange) {
-    if (exchange.get('invariant').toString() === '0') {
-      setToExchangeExists(false)
-      setToAssetError('no exchange exists')
-      setToKsmPool('')
-      setToAssetPool('')
-      setToExchangeInvariant('')
-    } else {
-      setToExchangeExists(true)
-      setToKsmPool(exchange.get('ksm_pool').toString())
-      setToAssetPool(exchange.get('token_pool').toString())
-      setToExchangeInvariant(exchange.get('invariant').toString())
-    }
-  }
-
+  // TODO update to V2
   const calculateAmountOut = (amountIn, fromAssetId, toAssetId, fromAssetPool, toAssetPool, invariant) => {
     const newFromAssetPool = new BigNumber(fromAssetPool).plus(amountIn)
     const fee = new BigNumber(amountIn).multipliedBy(3).div(1000)
@@ -289,7 +215,7 @@ export default function Swap() {
           disabled={!!fromAssetError || !!toAssetError || !!receiverError || inProgress()}
           attrs={{
             palletRpc: 'dexPallet',
-            callable: 'swap',
+            callable: 'swapExactTo',
             inputParams: [
               fromAsset,
               convertAmount(fromAsset, fromAssetAmount),
