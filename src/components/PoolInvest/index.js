@@ -18,13 +18,14 @@ export default function PoolInvest() {
   const defaultHint = 'Invest your tokens to the liquidity pool and earn 3% of the trading fees'
   const [status, setStatus] = useState('')
   const [hint, setHint] = useState(defaultHint)
-  const [ksmAmount, setKsmAmount] = useState('')
-  const [ksmAssetError, setKsmAssetError] = useState('')
-  const [asset, setAsset] = useState(EDG_ASSET_ID)
-  const [assetAmount, setAssetAmount] = useState('')
-  const [assetError, setAssetError] = useState('')
-  const [ksmPool, setKsmPool] = useState()
-  const [tokenPool, setTokenPool] = useState()
+  const [fromAsset, setFromAsset] = useState(KSM_ASSET_ID)
+  const [fromAssetAmount, setFromAssetAmount] = useState('')
+  const [fromAssetError, setFromAssetError] = useState('')
+  const [fromAssetPool, setFromAssetPool] = useState()
+  const [toAsset, setToAsset] = useState(EDG_ASSET_ID)
+  const [toAssetAmount, setToAssetAmount] = useState('')
+  const [toAssetError, setToAssetError] = useState('')
+  const [toAssetPool, setToAssetPool] = useState()
   const [poolInfo, setPoolInfo] = useState('')
   const [totalShares, setTotalShares] = useState(0)
   const [shares, setShares] = useState(0)
@@ -32,14 +33,19 @@ export default function PoolInvest() {
   const [exchangeExists, setExchangeExists] = useState(false)
 
   useEffect(() => {
+    if (fromAsset === toAsset) {
+      return
+    }
     let unsubscribe
+    const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
+    const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
-      .exchanges(asset, (exchange) => {
+      .exchanges(firstAsset, secondAsset, (exchange) => {
         if (exchange.get('invariant').toString() === '0') {
           setExchangeExists(false)
           setHint(
             `You are the first liquidity provider for ${
-              assetMap.get(asset).symbol
+              assetMap.get(toAsset).symbol
             }, please click Launch button to start the new exchange`
           )
           setPoolInfo('')
@@ -49,13 +55,23 @@ export default function PoolInvest() {
         } else {
           setExchangeExists(true)
           setHint(defaultHint)
-          const ksmPoolStr = exchange.get('ksm_pool').toString()
-          const ksmPoolBalance = shortenNumber(convertBalance(KSM_ASSET_ID, ksmPoolStr).toString())
-          setKsmPool(ksmPoolStr)
-          const tokenPoolStr = exchange.get('token_pool').toString()
-          const tokenPoolBalance = shortenNumber(convertBalance(asset, tokenPoolStr).toString())
-          setTokenPool(tokenPoolStr)
-          setPoolInfo(`${ksmPoolBalance} KSM + ${tokenPoolBalance} ${assetMap.get(asset).symbol}`)
+          const fromAssetPoolStr =
+            fromAsset < toAsset
+              ? exchange.get('first_asset_pool').toString()
+              : exchange.get('second_asset_pool').toString()
+          const fromAssetPoolBalance = shortenNumber(convertBalance(fromAsset, fromAssetPoolStr).toString())
+          setFromAssetPool(fromAssetPoolStr)
+          const toAssetPoolStr =
+            fromAsset < toAsset
+              ? exchange.get('second_asset_pool').toString()
+              : exchange.get('first_asset_pool').toString()
+          const toAssetPoolBalance = shortenNumber(convertBalance(toAsset, toAssetPoolStr).toString())
+          setToAssetPool(toAssetPoolStr)
+          setPoolInfo(
+            `${fromAssetPoolBalance} ${assetMap.get(fromAsset).symbol} + ${toAssetPoolBalance} ${
+              assetMap.get(toAsset).symbol
+            }`
+          )
           const totalSharesNumber = exchange.get('total_shares').toNumber()
           setTotalShares(totalSharesNumber)
           const sharesInfo = JSON.parse(exchange.get('shares').toString())
@@ -67,7 +83,7 @@ export default function PoolInvest() {
       })
       .catch(console.error)
     return () => unsubscribe && unsubscribe()
-  }, [asset, account, api.query.dexPallet])
+  }, [fromAsset, toAsset, account, api.query.dexPallet])
 
   useEffect(() => {
     if (!status) {
@@ -78,20 +94,31 @@ export default function PoolInvest() {
   }, [status])
 
   useEffect(() => {
-    if (ksmAmount && !isNaN(ksmAmount) && Number.parseFloat(ksmAmount) > 0 && ksmPool && tokenPool && totalShares) {
-      setAssetAmount(new BigNumber(tokenPool).multipliedBy(ksmAmount).div(ksmPool).toString())
+    if (
+      fromAssetAmount &&
+      !isNaN(fromAssetAmount) &&
+      Number.parseFloat(fromAssetAmount) > 0 &&
+      fromAssetPool &&
+      toAssetPool &&
+      totalShares
+    ) {
+      setToAssetAmount(new BigNumber(toAssetPool).multipliedBy(fromAssetAmount).div(fromAssetPool).toString())
+      // TODO fix me
       setShares(
         Number.parseInt(
-          new BigNumber(totalShares).multipliedBy(convertAmount(KSM_ASSET_ID, ksmAmount)).div(ksmPool).toFixed(0, 1)
+          new BigNumber(totalShares)
+            .multipliedBy(convertAmount(fromAsset, fromAssetAmount))
+            .div(fromAssetPool)
+            .toFixed(0, 1)
         )
       )
     } else {
       setShares(0)
-      if (!ksmAmount) {
-        setAssetAmount('')
+      if (!fromAssetAmount) {
+        setToAssetAmount('')
       }
     }
-  }, [ksmAmount, ksmPool, tokenPool, totalShares])
+  }, [fromAsset, fromAssetAmount, fromAssetPool, toAssetPool, totalShares])
 
   const validateAsset = useCallback(
     (amount, assetId, setErrorFunc) => {
@@ -106,83 +133,74 @@ export default function PoolInvest() {
     [balances]
   )
 
-  useEffect(() => validateAsset(ksmAmount, KSM_ASSET_ID, setKsmAssetError), [
-    ksmAmount,
+  useEffect(() => validateAsset(fromAssetAmount, fromAsset, setFromAssetError), [
+    fromAssetAmount,
+    fromAsset,
     balances,
-    setKsmAssetError,
+    setFromAssetError,
     validateAsset,
   ])
 
-  useEffect(() => validateAsset(assetAmount, asset, setAssetError), [
-    assetAmount,
-    asset,
+  useEffect(() => validateAsset(toAssetAmount, toAsset, setToAssetError), [
+    toAssetAmount,
+    toAsset,
     balances,
-    setAssetError,
+    setToAssetError,
     validateAsset,
   ])
 
-  useEffect(() => setStatus(''), [ksmAmount, assetAmount, asset, account])
+  useEffect(() => setStatus(''), [fromAsset, fromAssetAmount, toAssetAmount, toAsset, account])
 
   const inProgress = () => {
     return !!status && !status.includes('Finalized') && !status.includes('Error')
   }
 
-  const ksmAssetOptions = assets
-    .filter((asset) => asset.assetId === KSM_ASSET_ID)
-    .map(({ assetId, symbol, darkLogo, lightLogo }) => ({
-      key: assetId,
-      value: assetId,
-      text: symbol,
-      image: theme === 'light' ? lightLogo : darkLogo,
-    }))
-
-  const assetOptions = assets
-    .filter((asset) => asset.assetId !== KSM_ASSET_ID)
-    .map(({ assetId, symbol, lightLogo, darkLogo }) => ({
-      key: assetId,
-      value: assetId,
-      text: symbol,
-      image: theme === 'light' ? lightLogo : darkLogo,
-    }))
+  const assetOptions = assets.map(({ assetId, symbol, lightLogo, darkLogo }) => ({
+    key: assetId,
+    value: assetId,
+    text: symbol,
+    image: theme === 'light' ? lightLogo : darkLogo,
+  }))
 
   return (
     <PoolInputsContainer>
       <Hint text={hint} />
       <TokenInput
-        options={ksmAssetOptions}
+        options={assetOptions}
         label="Deposit"
         placeholder="Type here"
-        error={ksmAssetError}
+        error={fromAssetError}
         disabled={inProgress()}
         dropdownDisabled={inProgress()}
-        onChangeAmount={(e) => setKsmAmount(e.target.value)}
-        asset={KSM_ASSET_ID}
-        amount={ksmAmount}
+        onChangeAmount={(e) => setFromAssetAmount(e.target.value)}
+        onChangeAsset={setFromAsset}
+        asset={fromAsset}
+        amount={fromAssetAmount}
       />
       <div>
         <TokenInput
           options={assetOptions}
           label="Deposit"
           placeholder="Read only"
-          error={assetError}
+          error={toAssetError}
           readOnly={true}
           disabled={inProgress()}
           dropdownDisabled={inProgress()}
-          onChangeAmount={(e) => setAssetAmount(e.target.value)}
-          onChangeAsset={setAsset}
-          asset={asset}
-          amount={assetAmount}
+          onChangeAmount={(e) => setToAssetAmount(e.target.value)}
+          onChangeAsset={setToAsset}
+          asset={toAsset}
+          amount={toAssetAmount}
         />
         <LabelOutput label="Current pool" value={poolInfo} />
         <LabelOutput label="Your shares" value={sharesInfo} />
       </div>
       <TxButton
         accountPair={accountPair}
-        disabled={!!ksmAssetError || !!assetError || !exchangeExists || inProgress() || !shares}
+        disabled={!!fromAssetError || !!toAssetError || !exchangeExists || inProgress() || !shares}
         attrs={{
           palletRpc: 'dexPallet',
           callable: 'investLiquidity',
-          inputParams: [asset, shares],
+          inputParams: [fromAsset, toAsset, shares],
           paramFields: [false, false],
         }}
         setStatus={setStatus}

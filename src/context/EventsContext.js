@@ -22,10 +22,10 @@ const EventsContextProvider = (props) => {
             setSwapEvents((e) => {
               const copy = [
                 {
-                  soldAssetId: params[0],
-                  soldAmount: params[1],
-                  boughtAssetId: params[2],
-                  boughtAmount: params[3],
+                  soldAssetId: params[1],
+                  soldAmount: params[2],
+                  boughtAssetId: params[3],
+                  boughtAmount: params[4],
                   time: Date.now(),
                 },
                 ...e,
@@ -41,8 +41,9 @@ const EventsContextProvider = (props) => {
               const copy = [
                 {
                   type: 'Add',
-                  asset: assetMap.get(params[1]).symbol,
-                  shares: params[2],
+                  asset1: assetMap.get(params[1]).symbol,
+                  asset2: assetMap.get(params[2]).symbol,
+                  shares: params[3],
                   time: Date.now(),
                 },
                 ...e,
@@ -58,8 +59,9 @@ const EventsContextProvider = (props) => {
               const copy = [
                 {
                   type: 'Remove',
-                  asset: assetMap.get(params[1]).symbol,
-                  shares: params[2],
+                  asset1: assetMap.get(params[1]).symbol,
+                  asset2: assetMap.get(params[2]).symbol,
+                  shares: params[3],
                   time: Date.now(),
                 },
                 ...e,

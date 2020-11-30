@@ -26,10 +26,12 @@ export default function PoolEvents() {
         <tr>
           <td colSpan={4}>&nbsp;</td>
         </tr>
-        {poolEvents.map(({ type, asset, shares, time }, index) => (
+        {poolEvents.map(({ type, asset1, asset2, shares, time }, index) => (
           <tr key={index}>
             <td>{type}</td>
-            <td>{asset}/KSM</td>
+            <td>
+              {asset1}/{asset2}
+            </td>
             <td>{shares}</td>
             <td>{describe(currentTime - time)} ago</td>
           </tr>

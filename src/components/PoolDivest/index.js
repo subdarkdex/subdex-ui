@@ -20,26 +20,34 @@ export default function PoolInvest() {
   const [status, setStatus] = useState('')
   const [currentAssetShares, setCurrentAssetShares] = useState(0)
   const [hint, setHint] = useState(defaultHint)
-  const [divestAsset, setDivestAsset] = useState(EDG_ASSET_ID)
-  const [divestAssetError, setDivestAssetError] = useState('')
-  const [ksmPool, setKsmPool] = useState()
-  const [tokenPool, setTokenPool] = useState()
+  const [fromAsset, setFromAsset] = useState(KSM_ASSET_ID)
+  const [fromAssetError, setFromAssetError] = useState('')
+  const [fromAssetPool, setFromAssetPool] = useState()
+  const [toAsset, setToAsset] = useState(EDG_ASSET_ID)
+  const [toAssetError, setToAssetError] = useState('')
+  const [toAssetPool, setToAssetPool] = useState()
   const [divestInfo, setDivestInfo] = useState('')
   const [sharesToDivest, setSharesToDivest] = useState('')
   const [totalShares, setTotalShares] = useState('')
   const [poolInfo, setPoolInfo] = useState('')
   const [sharesInfo, setSharesInfo] = useState('')
-  const [ksmToReceive, setKsmToReceive] = useState('')
-  const [assetToReceive, setAssetToReceive] = useState('')
+  const [fromAssetToReceive, setFromAssetToReceive] = useState('')
+  const [toAssetToReceive, setToAssetToReceive] = useState('')
 
   useEffect(() => {
+    if (fromAsset === toAsset) {
+      setFromAssetError('Cannot be the same asset')
+      return
+    }
     let unsubscribe
+    const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
+    const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
-      .exchanges(divestAsset, (exchange) => {
+      .exchanges(firstAsset, secondAsset, (exchange) => {
         if (exchange.get('invariant').toString() === '0') {
           setHint(
             `There is no exchange for ${
-              assetMap.get(divestAsset).symbol
+              assetMap.get(toAsset).symbol
             }, you probably can click Launch button to start the new exchange`
           )
           setPoolInfo('')
@@ -48,13 +56,23 @@ export default function PoolInvest() {
           setCurrentAssetShares(0)
         } else {
           setHint(defaultHint)
-          const ksmPoolStr = exchange.get('ksm_pool').toString()
-          setKsmPool(ksmPoolStr)
-          const ksmPoolBalance = shortenNumber(convertBalance(KSM_ASSET_ID, ksmPoolStr).toString())
-          const tokenPoolStr = exchange.get('token_pool').toString()
-          setTokenPool(tokenPoolStr)
-          const tokenPoolBalance = shortenNumber(convertBalance(divestAsset, tokenPoolStr).toString())
-          setPoolInfo(`${ksmPoolBalance} KSM + ${tokenPoolBalance} ${assetMap.get(divestAsset).symbol}`)
+          const fromAssetPoolStr =
+            fromAsset < toAsset
+              ? exchange.get('first_asset_pool').toString()
+              : exchange.get('second_asset_pool').toString()
+          setFromAssetPool(fromAssetPoolStr)
+          const fromAssetPoolBalance = shortenNumber(convertBalance(KSM_ASSET_ID, fromAssetPoolStr).toString())
+          const toAssetPoolStr =
+            fromAsset < toAsset
+              ? exchange.get('second_asset_pool').toString()
+              : exchange.get('first_asset_pool').toString()
+          setToAssetPool(toAssetPoolStr)
+          const toAssetPoolBalance = shortenNumber(convertBalance(toAsset, toAssetPoolStr).toString())
+          setPoolInfo(
+            `${fromAssetPoolBalance} ${assetMap.get(fromAsset).symbol} + ${toAssetPoolBalance} ${
+              assetMap.get(toAsset).symbol
+            }`
+          )
           const totalShares = exchange.get('total_shares').toString()
           setTotalShares(totalShares)
           const sharesInfo = JSON.parse(exchange.get('shares').toString())
@@ -67,7 +85,7 @@ export default function PoolInvest() {
       })
       .catch(console.error)
     return () => unsubscribe && unsubscribe()
-  }, [divestAsset, account, api.query.dexPallet])
+  }, [fromAsset, toAsset, account, api.query.dexPallet])
 
   const buildSharesInfo = (shares, totalShares) => {
     if (!shares) return '0'
@@ -75,22 +93,25 @@ export default function PoolInvest() {
   }
 
   useEffect(() => {
-    if (!divestAssetError && sharesToDivest && ksmPool && totalShares) {
-      const ksmToReceive = new BigNumber(ksmPool).multipliedBy(sharesToDivest).div(totalShares).toFixed(0, 1)
-      setKsmToReceive(ksmToReceive.toString())
-      const assetToReceive = new BigNumber(tokenPool).multipliedBy(sharesToDivest).div(totalShares).toFixed(0, 1)
-      setAssetToReceive(assetToReceive.toString())
+    if (!toAssetError && sharesToDivest && fromAssetPool && totalShares) {
+      const fromAssetToReceive = new BigNumber(fromAssetPool)
+        .multipliedBy(sharesToDivest)
+        .div(totalShares)
+        .toFixed(0, 1)
+      setFromAssetToReceive(fromAssetToReceive.toString())
+      const assetToReceive = new BigNumber(toAssetPool).multipliedBy(sharesToDivest).div(totalShares).toFixed(0, 1)
+      setToAssetToReceive(assetToReceive.toString())
       setDivestInfo(
-        `${convertBalance(KSM_ASSET_ID, ksmToReceive)} KSM + ${convertBalance(divestAsset, assetToReceive)} ${
-          assetMap.get(divestAsset).symbol
+        `${convertBalance(fromAsset, fromAssetToReceive)} KSM + ${convertBalance(toAsset, assetToReceive)} ${
+          assetMap.get(toAsset).symbol
         }`
       )
     } else {
-      setKsmToReceive('')
-      setAssetToReceive('')
+      setFromAssetToReceive('')
+      setToAssetToReceive('')
       setDivestInfo('')
     }
-  }, [divestAsset, sharesToDivest, divestAssetError, ksmPool, totalShares, tokenPool])
+  }, [fromAsset, toAsset, sharesToDivest, toAssetError, fromAssetPool, totalShares, toAssetPool])
 
   useEffect(() => {
     if (!status) {
@@ -100,26 +121,24 @@ export default function PoolInvest() {
     }
   }, [status])
 
-  useEffect(() => setStatus(''), [divestAsset, sharesToDivest, account])
+  useEffect(() => setStatus(''), [toAsset, sharesToDivest, account])
 
   useEffect(() => {
     if (sharesToDivest && (isNaN(sharesToDivest) || sharesToDivest <= 0)) {
-      setDivestAssetError('invalid amount')
+      setToAssetError('invalid amount')
     } else if (Number.parseFloat(sharesToDivest) > currentAssetShares) {
-      setDivestAssetError('not enough shares')
+      setToAssetError('not enough shares')
     } else {
-      setDivestAssetError('')
+      setToAssetError('')
     }
   }, [sharesToDivest, currentAssetShares])
 
-  const divestAssetOptions = assets
-    .filter((asset) => asset.assetId !== KSM_ASSET_ID)
-    .map(({ assetId, symbol, darkLogo, lightLogo }) => ({
-      key: assetId,
-      value: assetId,
-      text: symbol,
-      image: theme === 'light' ? lightLogo : darkLogo,
-    }))
+  const assetOptions = assets.map(({ assetId, symbol, darkLogo, lightLogo }) => ({
+    key: assetId,
+    value: assetId,
+    text: symbol,
+    image: theme === 'light' ? lightLogo : darkLogo,
+  }))
 
   const inProgress = () => {
     return !!status && !status.includes('Finalized') && !status.includes('Error')
@@ -129,15 +148,25 @@ export default function PoolInvest() {
     <PoolInputsContainer>
       <Hint text={hint} />
       <TokenInput
-        options={divestAssetOptions}
+        options={assetOptions}
+        label={'Shares (' + currentAssetShares + ')'}
+        placeholder="0.0"
+        error={fromAssetError}
+        disabled={true}
+        dropdownDisabled={inProgress()}
+        onChangeAsset={setFromAsset}
+        asset={fromAsset}
+      />
+      <TokenInput
+        options={assetOptions}
         label={'Shares (' + currentAssetShares + ')'}
         placeholder="0.0"
         disabled={inProgress()}
         dropdownDisabled={inProgress()}
-        error={divestAssetError}
+        error={toAssetError}
         onChangeAmount={(e) => setSharesToDivest(e.target.value)}
-        onChangeAsset={setDivestAsset}
-        asset={divestAsset}
+        onChangeAsset={setToAsset}
+        asset={toAsset}
         amount={sharesToDivest}
       />
       <div>
@@ -152,11 +181,11 @@ export default function PoolInvest() {
       </div>
       <TxButton
         accountPair={accountPair}
-        disabled={!!divestAssetError || inProgress()}
+        disabled={!!toAssetError || inProgress()}
         attrs={{
           palletRpc: 'dexPallet',
           callable: 'divestLiquidity',
-          inputParams: [divestAsset, sharesToDivest, ksmToReceive, assetToReceive],
+          inputParams: [fromAsset, toAsset, sharesToDivest, fromAssetToReceive, toAssetToReceive],
           paramFields: [false, false, false, false],
         }}
         setStatus={setStatus}
