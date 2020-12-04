@@ -29,7 +29,7 @@ export default function PoolInvest() {
   const [toAssetInPool, setToAssetInPool] = useState(new BigNumber(0))
   const [toAssetToReceive, setToAssetToReceive] = useState('')
   const [sharesToDivest, setSharesToDivest] = useState(new BigNumber(0))
-  const [totalShares, setTotalShares] = useState('')
+  const [totalShares, setTotalShares] = useState(new BigNumber(0))
   const [poolInfo, setPoolInfo] = useState('')
   const [sharesInfo, setSharesInfo] = useState('')
 
@@ -50,11 +50,11 @@ export default function PoolInvest() {
             )
             setPoolInfo('')
             setSharesInfo('')
-            setTotalShares('')
+            setTotalShares(new BigNumber(0))
           } else {
             setHint(defaultHint)
             const totalShares = exchange.get('total_shares').toString()
-            setTotalShares(totalShares)
+            setTotalShares(new BigNumber(totalShares))
             const sharesMap = JSON.parse(exchange.get('shares').toString())
             const shares = sharesMap[account] || 0
             setSharesInfo(buildSharesInfo(sharesMap[account], totalShares))
