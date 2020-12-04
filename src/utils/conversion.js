@@ -1,4 +1,4 @@
-import { assetMap } from '../assets'
+import { assetMap, KSM_ASSET_ID } from '../assets'
 import BigNumber from 'bignumber.js'
 
 const conversion = {
@@ -7,12 +7,31 @@ const conversion = {
   },
 }
 
+const convertToAsset = (assetId) => {
+  if (assetId === KSM_ASSET_ID) {
+    return { MainNetworkCurrency: null }
+  }
+  return { ParachainAsset: assetId }
+}
+
+const convertToAssetId = (asset) => {
+  if (asset === 'MainNetworkCurrency') {
+    return KSM_ASSET_ID
+  }
+  return JSON.parse(asset).ParachainAsset.toString()
+}
+
 const convertAmount = (assetId, amount) => {
   if (!amount || isNaN(amount) || Number.parseFloat(amount) < 0) {
     return null
   }
   const decimals = assetMap.get(assetId).decimals
   return new BigNumber(amount).multipliedBy(new BigNumber(10).pow(decimals)).toString()
+}
+
+const convertShares = (shares) => {
+  const denominator = new BigNumber(10).pow(15)
+  return new BigNumber(shares).div(denominator)
 }
 
 const convertBalance = (assetId, balance) => {
@@ -45,4 +64,13 @@ const truncDecimals = (asset, amount) => {
   return amount
 }
 
-export { conversion as default, convertAmount, convertBalance, shortenNumber, truncDecimals }
+export {
+  conversion as default,
+  convertToAsset,
+  convertToAssetId,
+  convertAmount,
+  convertShares,
+  convertBalance,
+  shortenNumber,
+  truncDecimals,
+}

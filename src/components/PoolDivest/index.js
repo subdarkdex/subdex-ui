@@ -2,12 +2,11 @@ import React, { useState, useContext, useEffect } from 'react'
 import Hint from '../Hint'
 import TokenInput from '../TokenInput'
 import assets, { assetMap, EDG_ASSET_ID, KSM_ASSET_ID } from '../../assets'
-import LabelInput from '../LabelInput'
 import LabelOutput from '../LabelOutput'
 import useSubstrate from '../../hooks/useSubstrate'
 import { AccountContext, SettingsContext } from '../../context'
 import { TxButton } from '../TxButton'
-import { convertBalance, shortenNumber } from '../../utils/conversion'
+import { convertToAsset, convertBalance, convertAmount, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
 
@@ -18,7 +17,6 @@ export default function PoolInvest() {
   const accountPair = account && keyring.getPair(account)
   const defaultHint = 'Divest your tokens from the liquidity pool by burning your DarkDEX shares'
   const [status, setStatus] = useState('')
-  const [currentAssetShares, setCurrentAssetShares] = useState(0)
   const [hint, setHint] = useState(defaultHint)
   const [fromAsset, setFromAsset] = useState(KSM_ASSET_ID)
   const [fromAssetError, setFromAssetError] = useState('')
@@ -26,58 +24,64 @@ export default function PoolInvest() {
   const [toAsset, setToAsset] = useState(EDG_ASSET_ID)
   const [toAssetError, setToAssetError] = useState('')
   const [toAssetPool, setToAssetPool] = useState()
-  const [divestInfo, setDivestInfo] = useState('')
   const [sharesToDivest, setSharesToDivest] = useState('')
   const [totalShares, setTotalShares] = useState('')
   const [poolInfo, setPoolInfo] = useState('')
   const [sharesInfo, setSharesInfo] = useState('')
+  const [fromAssetInPool, setFromAssetInPool] = useState(new BigNumber(0))
+  const [toAssetInPool, setToAssetInPool] = useState(new BigNumber(0))
   const [fromAssetToReceive, setFromAssetToReceive] = useState('')
   const [toAssetToReceive, setToAssetToReceive] = useState('')
 
   useEffect(() => {
     if (fromAsset === toAsset) {
-      setFromAssetError('Cannot be the same asset')
+      setFromAssetError('same asset')
+      setToAssetError('same asset')
+      setPoolInfo('')
       return
     }
     let unsubscribe
     const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
     const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
-      .exchanges(firstAsset, secondAsset, (exchange) => {
+      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
         if (exchange.get('invariant').toString() === '0') {
           setHint(
-            `There is no exchange for ${
-              assetMap.get(toAsset).symbol
-            }, you probably can click Launch button to start the new exchange`
+            `There is no exchange for
+            ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol},
+            you probably can click Launch button to start the new exchange`
           )
           setPoolInfo('')
           setSharesInfo('')
           setTotalShares('')
-          setCurrentAssetShares(0)
         } else {
           setHint(defaultHint)
+          const totalShares = exchange.get('total_shares').toString()
+          setTotalShares(totalShares)
+          const sharesInfo = JSON.parse(exchange.get('shares').toString())
+          const shares = sharesInfo[account] || 0
+          setSharesInfo(buildSharesInfo(sharesInfo[account], totalShares))
           const fromAssetPoolStr =
             fromAsset < toAsset
               ? exchange.get('first_asset_pool').toString()
               : exchange.get('second_asset_pool').toString()
-          setFromAssetPool(fromAssetPoolStr)
-          const fromAssetPoolBalance = shortenNumber(convertBalance(KSM_ASSET_ID, fromAssetPoolStr).toString())
+          const fromAssetPoolBalance = convertBalance(KSM_ASSET_ID, fromAssetPoolStr).toString()
+          setFromAssetPool(fromAssetPoolBalance)
+          setFromAssetInPool(
+            convertBalance(fromAsset, new BigNumber(shares).multipliedBy(fromAssetPoolStr).div(totalShares))
+          )
           const toAssetPoolStr =
             fromAsset < toAsset
               ? exchange.get('second_asset_pool').toString()
               : exchange.get('first_asset_pool').toString()
-          setToAssetPool(toAssetPoolStr)
-          const toAssetPoolBalance = shortenNumber(convertBalance(toAsset, toAssetPoolStr).toString())
+          const toAssetPoolBalance = convertBalance(toAsset, toAssetPoolStr).toString()
+          setToAssetPool(toAssetPoolBalance)
+          setToAssetInPool(convertBalance(toAsset, new BigNumber(shares).multipliedBy(toAssetPoolStr).div(totalShares)))
           setPoolInfo(
-            `${fromAssetPoolBalance} ${assetMap.get(fromAsset).symbol} + ${toAssetPoolBalance} ${
-              assetMap.get(toAsset).symbol
-            }`
+            `${shortenNumber(fromAssetPoolBalance)} ${assetMap.get(fromAsset).symbol} + ${shortenNumber(
+              toAssetPoolBalance
+            )} ${assetMap.get(toAsset).symbol}`
           )
-          const totalShares = exchange.get('total_shares').toString()
-          setTotalShares(totalShares)
-          const sharesInfo = JSON.parse(exchange.get('shares').toString())
-          setCurrentAssetShares(sharesInfo[account] || 0)
-          setSharesInfo(buildSharesInfo(sharesInfo[account], totalShares))
         }
       })
       .then((unsub) => {
@@ -93,25 +97,25 @@ export default function PoolInvest() {
   }
 
   useEffect(() => {
-    if (!toAssetError && sharesToDivest && fromAssetPool && totalShares) {
-      const fromAssetToReceive = new BigNumber(fromAssetPool)
-        .multipliedBy(sharesToDivest)
-        .div(totalShares)
-        .toFixed(0, 1)
-      setFromAssetToReceive(fromAssetToReceive.toString())
-      const assetToReceive = new BigNumber(toAssetPool).multipliedBy(sharesToDivest).div(totalShares).toFixed(0, 1)
-      setToAssetToReceive(assetToReceive.toString())
-      setDivestInfo(
-        `${convertBalance(fromAsset, fromAssetToReceive)} KSM + ${convertBalance(toAsset, assetToReceive)} ${
-          assetMap.get(toAsset).symbol
-        }`
+    if (fromAssetToReceive && (isNaN(fromAssetToReceive) || fromAssetToReceive <= 0)) {
+      setFromAssetError('invalid amount')
+    } else if (new BigNumber(fromAssetToReceive).gt(fromAssetInPool)) {
+      setFromAssetError('not enough in pool')
+      setToAssetError('not enough in pool')
+    } else if (fromAssetToReceive) {
+      setFromAssetError('')
+      setToAssetError('')
+      setSharesToDivest(
+        new BigNumber(fromAssetToReceive).multipliedBy(totalShares).div(fromAssetPool).toFixed(0, 0).toString()
       )
+      setToAssetToReceive(new BigNumber(toAssetPool).multipliedBy(fromAssetToReceive).div(fromAssetPool).toString())
     } else {
-      setFromAssetToReceive('')
+      setFromAssetError('')
+      setToAssetError('')
+      setSharesToDivest('')
       setToAssetToReceive('')
-      setDivestInfo('')
     }
-  }, [fromAsset, toAsset, sharesToDivest, toAssetError, fromAssetPool, totalShares, toAssetPool])
+  }, [fromAssetToReceive, fromAssetInPool, fromAssetPool, totalShares, toAssetPool])
 
   useEffect(() => {
     if (!status) {
@@ -121,17 +125,7 @@ export default function PoolInvest() {
     }
   }, [status])
 
-  useEffect(() => setStatus(''), [toAsset, sharesToDivest, account])
-
-  useEffect(() => {
-    if (sharesToDivest && (isNaN(sharesToDivest) || sharesToDivest <= 0)) {
-      setToAssetError('invalid amount')
-    } else if (Number.parseFloat(sharesToDivest) > currentAssetShares) {
-      setToAssetError('not enough shares')
-    } else {
-      setToAssetError('')
-    }
-  }, [sharesToDivest, currentAssetShares])
+  useEffect(() => setStatus(''), [toAsset, fromAssetToReceive, account])
 
   const assetOptions = assets.map(({ assetId, symbol, darkLogo, lightLogo }) => ({
     key: assetId,
@@ -149,44 +143,45 @@ export default function PoolInvest() {
       <Hint text={hint} />
       <TokenInput
         options={assetOptions}
-        label={'Shares (' + currentAssetShares + ')'}
+        label={`${shortenNumber(fromAssetInPool)} in Pool`}
         placeholder="0.0"
         error={fromAssetError}
-        disabled={true}
+        disabled={inProgress()}
         dropdownDisabled={inProgress()}
+        onChangeAmount={(e) => setFromAssetToReceive(e.target.value)}
         onChangeAsset={setFromAsset}
         asset={fromAsset}
       />
-      <TokenInput
-        options={assetOptions}
-        label={'Shares (' + currentAssetShares + ')'}
-        placeholder="0.0"
-        disabled={inProgress()}
-        dropdownDisabled={inProgress()}
-        error={toAssetError}
-        onChangeAmount={(e) => setSharesToDivest(e.target.value)}
-        onChangeAsset={setToAsset}
-        asset={toAsset}
-        amount={sharesToDivest}
-      />
       <div>
-        <LabelInput
-          label="Output (estimated)"
-          placeholder="assets you'll receive from the pool"
-          value={divestInfo || ''}
+        <TokenInput
+          options={assetOptions}
+          label={`${shortenNumber(toAssetInPool)} in Pool`}
+          placeholder="Read only"
           readOnly={true}
+          disabled={inProgress()}
+          dropdownDisabled={inProgress()}
+          error={toAssetError}
+          onChangeAsset={setToAsset}
+          asset={toAsset}
+          amount={toAssetToReceive}
         />
         <LabelOutput label="Current pool" value={poolInfo} />
         <LabelOutput label="Your shares" value={sharesInfo} />
       </div>
       <TxButton
         accountPair={accountPair}
-        disabled={!!toAssetError || inProgress()}
+        disabled={!!fromAssetError || !!toAssetError || inProgress()}
         attrs={{
           palletRpc: 'dexPallet',
           callable: 'divestLiquidity',
-          inputParams: [fromAsset, toAsset, sharesToDivest, fromAssetToReceive, toAssetToReceive],
-          paramFields: [false, false, false, false],
+          inputParams: [
+            convertToAsset(fromAsset),
+            convertToAsset(toAsset),
+            sharesToDivest,
+            convertAmount(fromAsset, fromAssetToReceive),
+            convertAmount(toAsset, toAssetToReceive),
+          ],
+          paramFields: [false, false, false, false, false],
         }}
         setStatus={setStatus}
         type="SIGNED-TX"

@@ -16,7 +16,7 @@ const assets = [
     darkLogo: ksmDark,
     lightLogo: ksmLight,
     name: 'Kusama',
-    decimals: 12,
+    decimals: 15,
   },
 
   {
@@ -25,7 +25,7 @@ const assets = [
     darkLogo: btcDark,
     lightLogo: btcLight,
     name: 'Bitcoin',
-    decimals: 12,
+    decimals: 15,
   },
 
   {
@@ -34,7 +34,7 @@ const assets = [
     darkLogo: edgDark,
     lightLogo: edgLight,
     name: 'Edgeware',
-    decimals: 12,
+    decimals: 15,
   },
 ]
 

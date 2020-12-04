@@ -9,7 +9,7 @@ import { AccountContext, SettingsContext } from '../../context'
 import LabelOutput from '../LabelOutput'
 import { isValidAddress } from '../../utils/address'
 import BigNumber from 'bignumber.js'
-import { convertAmount, convertBalance, shortenNumber, truncDecimals } from '../../utils/conversion'
+import { convertToAsset, convertAmount, convertBalance, shortenNumber, truncDecimals } from '../../utils/conversion'
 import { MarketPlace } from '../Market'
 
 export default function Swap() {
@@ -35,12 +35,10 @@ export default function Swap() {
 
   const validate = useCallback(
     (fromAsset, fromAssetAmount, toAsset, toAssetAmount) => {
-      console.log('validate is called with params:', fromAsset, fromAssetAmount, toAsset, toAssetAmount)
       if (fromAsset === toAsset) {
         setFromAssetError('it cannot be the same asset')
         setToAssetError('it cannot be the same asset')
       } else {
-        console.log('balances', balances)
         if (fromAssetAmount && (isNaN(fromAssetAmount) || fromAssetAmount <= 0)) {
           setFromAssetError('invalid amount')
         } else if (!!fromAssetPool && new BigNumber(fromAssetPool).lte(convertAmount(fromAsset, fromAssetAmount))) {
@@ -98,9 +96,8 @@ export default function Swap() {
     let unsubscribe
     const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
     const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
-    console.log('dexPallet', api.query.dexPallet)
     api.query.dexPallet
-      .exchanges(firstAsset, secondAsset, (exchange) => {
+      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
         updateAssetStates(exchange)
       })
       .then((unsub) => {
