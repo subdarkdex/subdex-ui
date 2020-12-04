@@ -6,7 +6,7 @@ import LabelOutput from '../LabelOutput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
 import { AccountContext, SettingsContext } from '../../context'
-import { convertAmount, shortenNumber } from '../../utils/conversion'
+import { convertToAsset, convertAmount, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
 
@@ -55,14 +55,13 @@ export default function PoolLaunch() {
     const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
     const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
-      .exchanges(firstAsset, secondAsset, (exchange) => {
-        console.log('invariant', exchange.get('invariant').toString())
+      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
         if (exchange.get('invariant').toString() !== '0') {
           setExchangeExists(true)
           setHint(
-            `There is already liquidity for ${
-              assetMap.get(toAsset).symbol
-            } now, please click Invest button to add more liquidity`
+            `There is already liquidity for
+            ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol}
+            now, please click Invest button to add more liquidity`
           )
         } else {
           setExchangeExists(false)
@@ -84,8 +83,8 @@ export default function PoolLaunch() {
     (amount, assetId, setErrorFunc) => {
       if (fromAsset === toAsset) {
         setErrorFunc('cannot be the same asset')
-      }
-      if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
+        setHint(defaultHint)
+      } else if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
         setErrorFunc('invalid amount')
       } else if (balances.get(assetId) && balances.get(assetId).lte(new BigNumber(amount))) {
         setErrorFunc('exceeds the balance')
@@ -160,8 +159,13 @@ export default function PoolLaunch() {
         attrs={{
           palletRpc: 'dexPallet',
           callable: 'initializeExchange',
-          inputParams: [convertAmount(fromAsset, fromAssetAmount), toAsset, convertAmount(toAsset, toAssetAmount)],
-          paramFields: [false, false, false],
+          inputParams: [
+            convertToAsset(fromAsset),
+            convertAmount(fromAsset, fromAssetAmount),
+            convertToAsset(toAsset),
+            convertAmount(toAsset, toAssetAmount),
+          ],
+          paramFields: [false, false, false, false],
         }}
         setStatus={setStatus}
         type="SIGNED-TX"

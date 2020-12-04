@@ -6,7 +6,7 @@ import LabelOutput from '../LabelOutput'
 import { TxButton } from '../TxButton'
 import useSubstrate from '../../hooks/useSubstrate'
 import { AccountContext, SettingsContext } from '../../context'
-import { convertAmount, convertBalance, shortenNumber } from '../../utils/conversion'
+import { convertToAsset, convertBalance, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
 
@@ -40,13 +40,13 @@ export default function PoolInvest() {
     const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
     const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
-      .exchanges(firstAsset, secondAsset, (exchange) => {
+      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
         if (exchange.get('invariant').toString() === '0') {
           setExchangeExists(false)
           setHint(
-            `You are the first liquidity provider for ${
-              assetMap.get(toAsset).symbol
-            }, please click Launch button to start the new exchange`
+            `You are the first liquidity provider for 
+            ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol}, 
+            please click Launch button to start the new exchange`
           )
           setPoolInfo('')
           setSharesInfo('')
@@ -59,23 +59,30 @@ export default function PoolInvest() {
             fromAsset < toAsset
               ? exchange.get('first_asset_pool').toString()
               : exchange.get('second_asset_pool').toString()
-          const fromAssetPoolBalance = shortenNumber(convertBalance(fromAsset, fromAssetPoolStr).toString())
-          setFromAssetPool(fromAssetPoolStr)
+          const fromAssetPoolBalance = convertBalance(fromAsset, fromAssetPoolStr).toString()
+          setFromAssetPool(fromAssetPoolBalance)
           const toAssetPoolStr =
             fromAsset < toAsset
               ? exchange.get('second_asset_pool').toString()
               : exchange.get('first_asset_pool').toString()
-          const toAssetPoolBalance = shortenNumber(convertBalance(toAsset, toAssetPoolStr).toString())
-          setToAssetPool(toAssetPoolStr)
+          const toAssetPoolBalance = convertBalance(toAsset, toAssetPoolStr).toString()
+          setToAssetPool(toAssetPoolBalance)
           setPoolInfo(
-            `${fromAssetPoolBalance} ${assetMap.get(fromAsset).symbol} + ${toAssetPoolBalance} ${
-              assetMap.get(toAsset).symbol
-            }`
+            `${shortenNumber(fromAssetPoolBalance)} ${assetMap.get(fromAsset).symbol} + ${shortenNumber(
+              toAssetPoolBalance
+            )} ${assetMap.get(toAsset).symbol}`
           )
-          const totalSharesNumber = exchange.get('total_shares').toNumber()
+          const totalSharesNumber = exchange.get('total_shares').toString()
           setTotalShares(totalSharesNumber)
           const sharesInfo = JSON.parse(exchange.get('shares').toString())
-          setSharesInfo(sharesInfo[account] ? `${(sharesInfo[account] * 100) / totalSharesNumber} %` : '0')
+          console.log('totalShares', exchange.get('total_shares'))
+          console.log('myShares', sharesInfo[account])
+          console.log('totalSharesNumber', totalSharesNumber)
+          setSharesInfo(
+            sharesInfo[account]
+              ? `${new BigNumber(sharesInfo[account]).multipliedBy(100).div(totalSharesNumber)} %`
+              : '0'
+          )
         }
       })
       .then((unsub) => {
@@ -103,15 +110,8 @@ export default function PoolInvest() {
       totalShares
     ) {
       setToAssetAmount(new BigNumber(toAssetPool).multipliedBy(fromAssetAmount).div(fromAssetPool).toString())
-      // TODO fix me
-      setShares(
-        Number.parseInt(
-          new BigNumber(totalShares)
-            .multipliedBy(convertAmount(fromAsset, fromAssetAmount))
-            .div(fromAssetPool)
-            .toFixed(0, 1)
-        )
-      )
+      console.log('totalShares', totalShares)
+      setShares(new BigNumber(totalShares).multipliedBy(fromAssetAmount).div(fromAssetPool).toFixed(0, 1).toString())
     } else {
       setShares(0)
       if (!fromAssetAmount) {
@@ -122,7 +122,10 @@ export default function PoolInvest() {
 
   const validateAsset = useCallback(
     (amount, assetId, setErrorFunc) => {
-      if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
+      if (fromAsset === toAsset) {
+        setFromAssetError('Cannot be the same asset')
+        setToAssetError('Cannot be the same asset')
+      } else if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
         setErrorFunc('invalid amount')
       } else if (balances.get(assetId) && balances.get(assetId).lte(new BigNumber(amount))) {
         setErrorFunc('exceeds the balance')
@@ -130,7 +133,7 @@ export default function PoolInvest() {
         setErrorFunc('')
       }
     },
-    [balances]
+    [balances, fromAsset, toAsset]
   )
 
   useEffect(() => validateAsset(fromAssetAmount, fromAsset, setFromAssetError), [
@@ -200,8 +203,8 @@ export default function PoolInvest() {
         attrs={{
           palletRpc: 'dexPallet',
           callable: 'investLiquidity',
-          inputParams: [fromAsset, toAsset, shares],
-          paramFields: [false, false],
+          inputParams: [convertToAsset(fromAsset), convertToAsset(toAsset), shares],
+          paramFields: [false, false, false],
         }}
         setStatus={setStatus}
         type="SIGNED-TX"

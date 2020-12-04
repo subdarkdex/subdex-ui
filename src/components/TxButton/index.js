@@ -97,6 +97,7 @@ function TxButton({
   const signedTx = async () => {
     const fromAcct = await getFromAcct()
     const transformed = transformParams(paramFields, inputParams)
+    console.log('transformed', transformed)
     // transformed can be empty parameters
 
     const txExecute = transformed ? api.tx[palletRpc][callable](...transformed) : api.tx[palletRpc][callable]()

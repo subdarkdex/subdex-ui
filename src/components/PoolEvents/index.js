@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { EventsContext } from '../../context'
 import styled from 'styled-components'
 import describe from '../../utils/time'
+import { convertShares, shortenNumber } from '../../utils/conversion'
+import { Tooltip } from 'react-tippy'
 
 export default function PoolEvents() {
   const [currentTime, setCurrentTime] = useState(Date.now())
@@ -32,7 +34,18 @@ export default function PoolEvents() {
             <td>
               {asset1}/{asset2}
             </td>
-            <td>{shares}</td>
+            <td>
+              <Tooltip
+                title={convertShares(shares).toString()}
+                duration={1000}
+                animation="fade"
+                position="bottom"
+                trigger="mouseenter"
+                arrow={true}
+              >
+                {shortenNumber(convertShares(shares).toString())}
+              </Tooltip>
+            </td>
             <td>{describe(currentTime - time)} ago</td>
           </tr>
         ))}

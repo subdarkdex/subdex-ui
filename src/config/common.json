@@ -6,6 +6,7 @@
     "Address": "AccountId",
     "LookupSource": "AccountId",
     "RefCount": "u8",
+    "Shares": "Balance",
     "AssetId": "u64",
     "ParaChainAssetId": "Option<AssetId>",
     "DexAssetId": "AssetIdOf<T>",
