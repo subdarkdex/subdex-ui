@@ -48,35 +48,34 @@ export default function PoolLaunch() {
   }, [status])
 
   useEffect(() => {
-    if (fromAsset === toAsset) {
-      return
-    }
-    let unsubscribe
-    const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
-    const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
-    api.query.dexPallet
-      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
-        if (exchange.get('invariant').toString() !== '0') {
-          setExchangeExists(true)
-          setHint(
-            `There is already liquidity for
+    if (fromAsset !== toAsset) {
+      let unsubscribe
+      const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
+      const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
+      api.query.dexPallet
+        .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
+          if (exchange.get('invariant').toString() !== '0') {
+            setExchangeExists(true)
+            setHint(
+              `There is already liquidity for
             ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol}
             now, please click Invest button to add more liquidity`
-          )
-        } else {
-          setExchangeExists(false)
-          setHint(defaultHint)
-        }
-      })
-      .then((unsub) => {
-        unsubscribe = unsub
-      })
-      .catch(console.error)
-    return () => unsubscribe && unsubscribe()
+            )
+          } else {
+            setExchangeExists(false)
+            setHint(defaultHint)
+          }
+        })
+        .then((unsub) => {
+          unsubscribe = unsub
+        })
+        .catch(console.error)
+      return () => unsubscribe && unsubscribe()
+    }
   }, [api.query.dexPallet, fromAsset, toAsset])
 
-  const getPrice = (ksmAmount, assetAmount) => {
-    return shortenNumber(new BigNumber(assetAmount).div(ksmAmount).toString(), 18)
+  const getPrice = (fromAssetamount, toAssetAmount) => {
+    return shortenNumber(new BigNumber(toAssetAmount).div(fromAssetamount).toString(), 18)
   }
 
   const validateAsset = useCallback(
@@ -100,6 +99,7 @@ export default function PoolLaunch() {
     fromAsset,
     balances,
     validateAsset,
+    account,
   ])
 
   useEffect(() => validateAsset(toAssetAmount, toAsset, setToAssetError), [
@@ -107,9 +107,10 @@ export default function PoolLaunch() {
     toAsset,
     balances,
     validateAsset,
+    account,
   ])
 
-  useEffect(() => setStatus(''), [toAsset, toAssetAmount, account])
+  useEffect(() => setStatus(''), [fromAsset, toAsset, toAssetAmount, account])
 
   const assetOptions = assets.map(({ assetId, symbol, lightLogo, darkLogo }) => ({
     key: assetId,
