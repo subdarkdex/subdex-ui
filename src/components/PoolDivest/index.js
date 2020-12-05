@@ -35,7 +35,7 @@ export default function PoolInvest() {
 
   useEffect(() => {
     if (fromAsset === toAsset) {
-      setPoolInfo('')
+      clearPoolData()
     } else {
       let unsubscribe
       const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
@@ -48,9 +48,7 @@ export default function PoolInvest() {
             ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol},
             you probably can click Launch button to start the new exchange`
             )
-            setPoolInfo('')
-            setSharesInfo('')
-            setTotalShares(new BigNumber(0))
+            clearPoolData()
           } else {
             setHint(defaultHint)
             const totalShares = exchange.get('total_shares').toString()
@@ -91,6 +89,16 @@ export default function PoolInvest() {
     return `${new BigNumber(shares).multipliedBy(100).div(totalShares).toFormat(2)} %`
   }
 
+  const clearPoolData = () => {
+    setPoolInfo('')
+    setSharesInfo('')
+    setTotalShares(new BigNumber(0))
+    setFromAssetPool(new BigNumber(0))
+    setFromAssetInPool(new BigNumber(0))
+    setToAssetPool(new BigNumber(0))
+    setToAssetInPool(new BigNumber(0))
+  }
+
   useEffect(() => {
     if (fromAsset === toAsset) {
       setFromAssetError('same asset')
@@ -102,9 +110,11 @@ export default function PoolInvest() {
       setToAssetToReceive('')
     } else if (isNaN(fromAssetToReceive) || fromAssetToReceive <= 0) {
       setFromAssetError('invalid amount')
+      setToAssetError('')
     } else if (new BigNumber(fromAssetToReceive).gt(fromAssetInPool)) {
       setFromAssetError('not enough in pool')
-    } else {
+      setToAssetError('')
+    } else if (totalShares.gt(0) && fromAssetPool.gt(0) && toAssetPool.gt(0)) {
       setFromAssetError('')
       setToAssetError('')
       setSharesToDivest(new BigNumber(fromAssetToReceive).multipliedBy(totalShares).div(fromAssetPool))

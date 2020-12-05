@@ -21,76 +21,82 @@ export default function PoolInvest() {
   const [fromAsset, setFromAsset] = useState(KSM_ASSET_ID)
   const [fromAssetAmount, setFromAssetAmount] = useState('')
   const [fromAssetError, setFromAssetError] = useState('')
-  const [fromAssetPool, setFromAssetPool] = useState()
+  const [fromAssetPool, setFromAssetPool] = useState(new BigNumber(0))
   const [toAsset, setToAsset] = useState(EDG_ASSET_ID)
   const [toAssetAmount, setToAssetAmount] = useState('')
   const [toAssetError, setToAssetError] = useState('')
-  const [toAssetPool, setToAssetPool] = useState()
+  const [toAssetPool, setToAssetPool] = useState(new BigNumber(0))
   const [poolInfo, setPoolInfo] = useState('')
-  const [totalShares, setTotalShares] = useState(0)
-  const [shares, setShares] = useState(0)
+  const [totalShares, setTotalShares] = useState(new BigNumber(0))
+  const [shares, setShares] = useState(new BigNumber(0))
   const [sharesInfo, setSharesInfo] = useState('')
   const [exchangeExists, setExchangeExists] = useState(false)
 
   useEffect(() => {
     if (fromAsset === toAsset) {
-      return
-    }
-    let unsubscribe
-    const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
-    const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
-    api.query.dexPallet
-      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
-        if (exchange.get('invariant').toString() === '0') {
-          setExchangeExists(false)
-          setHint(
-            `You are the first liquidity provider for 
+      clearPoolData()
+    } else {
+      let unsubscribe
+      const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
+      const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
+      api.query.dexPallet
+        .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
+          if (exchange.get('invariant').toString() === '0') {
+            setExchangeExists(false)
+            setHint(
+              `You are the first liquidity provider for 
             ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol}, 
             please click Launch button to start the new exchange`
-          )
-          setPoolInfo('')
-          setSharesInfo('')
-          setTotalShares(0)
-          setShares(0)
-        } else {
-          setExchangeExists(true)
-          setHint(defaultHint)
-          const fromAssetPoolStr =
-            fromAsset < toAsset
-              ? exchange.get('first_asset_pool').toString()
-              : exchange.get('second_asset_pool').toString()
-          const fromAssetPoolBalance = convertBalance(fromAsset, fromAssetPoolStr).toString()
-          setFromAssetPool(fromAssetPoolBalance)
-          const toAssetPoolStr =
-            fromAsset < toAsset
-              ? exchange.get('second_asset_pool').toString()
-              : exchange.get('first_asset_pool').toString()
-          const toAssetPoolBalance = convertBalance(toAsset, toAssetPoolStr).toString()
-          setToAssetPool(toAssetPoolBalance)
-          setPoolInfo(
-            `${shortenNumber(fromAssetPoolBalance)} ${assetMap.get(fromAsset).symbol} + ${shortenNumber(
-              toAssetPoolBalance
-            )} ${assetMap.get(toAsset).symbol}`
-          )
-          const totalSharesNumber = exchange.get('total_shares').toString()
-          setTotalShares(totalSharesNumber)
-          const sharesInfo = JSON.parse(exchange.get('shares').toString())
-          console.log('totalShares', exchange.get('total_shares'))
-          console.log('myShares', sharesInfo[account])
-          console.log('totalSharesNumber', totalSharesNumber)
-          setSharesInfo(
-            sharesInfo[account]
-              ? `${new BigNumber(sharesInfo[account]).multipliedBy(100).div(totalSharesNumber)} %`
-              : '0'
-          )
-        }
-      })
-      .then((unsub) => {
-        unsubscribe = unsub
-      })
-      .catch(console.error)
-    return () => unsubscribe && unsubscribe()
+            )
+            clearPoolData()
+          } else {
+            setExchangeExists(true)
+            setHint(defaultHint)
+            const fromAssetPoolStr =
+              fromAsset < toAsset
+                ? exchange.get('first_asset_pool').toString()
+                : exchange.get('second_asset_pool').toString()
+            const fromAssetPoolBalance = convertBalance(fromAsset, fromAssetPoolStr)
+            setFromAssetPool(fromAssetPoolBalance)
+            const toAssetPoolStr =
+              fromAsset < toAsset
+                ? exchange.get('second_asset_pool').toString()
+                : exchange.get('first_asset_pool').toString()
+            const toAssetPoolBalance = convertBalance(toAsset, toAssetPoolStr)
+            setToAssetPool(toAssetPoolBalance)
+            setPoolInfo(
+              `${shortenNumber(fromAssetPoolBalance.toString())} ${assetMap.get(fromAsset).symbol} + 
+              ${shortenNumber(toAssetPoolBalance.toString())} ${assetMap.get(toAsset).symbol}`
+            )
+            const totalSharesStr = exchange.get('total_shares').toString()
+            setTotalShares(new BigNumber(totalSharesStr))
+            const sharesInfo = JSON.parse(exchange.get('shares').toString())
+            console.log('myShares', sharesInfo[account])
+            console.log('totalShares', totalSharesStr)
+            setSharesInfo(
+              sharesInfo[account]
+                ? `${new BigNumber(sharesInfo[account]).multipliedBy(100).div(totalSharesStr)} %`
+                : '0'
+            )
+          }
+        })
+        .then((unsub) => {
+          unsubscribe = unsub
+        })
+        .catch(console.error)
+      return () => unsubscribe && unsubscribe()
+    }
   }, [fromAsset, toAsset, account, api.query.dexPallet])
+
+  const clearPoolData = () => {
+    setPoolInfo('')
+    setSharesInfo('')
+    setTotalShares(new BigNumber(0))
+    setShares(new BigNumber(0))
+    setFromAssetPool(new BigNumber(0))
+    setToAssetPool(new BigNumber(0))
+    setFromAssetAmount('')
+  }
 
   useEffect(() => {
     if (!status) {
@@ -105,15 +111,15 @@ export default function PoolInvest() {
       fromAssetAmount &&
       !isNaN(fromAssetAmount) &&
       Number.parseFloat(fromAssetAmount) > 0 &&
-      fromAssetPool &&
-      toAssetPool &&
-      totalShares
+      fromAssetPool.gt(0) &&
+      toAssetPool.gt(0) &&
+      totalShares.gt(0)
     ) {
       setToAssetAmount(new BigNumber(toAssetPool).multipliedBy(fromAssetAmount).div(fromAssetPool).toString())
       console.log('totalShares', totalShares)
-      setShares(new BigNumber(totalShares).multipliedBy(fromAssetAmount).div(fromAssetPool).toFixed(0, 1).toString())
+      setShares(new BigNumber(totalShares).multipliedBy(fromAssetAmount).div(fromAssetPool))
     } else {
-      setShares(0)
+      setShares(new BigNumber(0))
       if (!fromAssetAmount) {
         setToAssetAmount('')
       }
@@ -123,11 +129,11 @@ export default function PoolInvest() {
   const validateAsset = useCallback(
     (amount, assetId, setErrorFunc) => {
       if (fromAsset === toAsset) {
-        setFromAssetError('Cannot be the same asset')
-        setToAssetError('Cannot be the same asset')
+        setFromAssetError('same asset')
+        setToAssetError('same asset')
       } else if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
         setErrorFunc('invalid amount')
-      } else if (balances.get(assetId) && balances.get(assetId).lte(new BigNumber(amount))) {
+      } else if (balances.get(assetId) && balances.get(assetId).lt(new BigNumber(amount))) {
         setErrorFunc('exceeds the balance')
       } else {
         setErrorFunc('')
@@ -140,6 +146,7 @@ export default function PoolInvest() {
     fromAssetAmount,
     fromAsset,
     balances,
+    account,
     setFromAssetError,
     validateAsset,
   ])
@@ -148,6 +155,7 @@ export default function PoolInvest() {
     toAssetAmount,
     toAsset,
     balances,
+    account,
     setToAssetError,
     validateAsset,
   ])
@@ -203,7 +211,7 @@ export default function PoolInvest() {
         attrs={{
           palletRpc: 'dexPallet',
           callable: 'investLiquidity',
-          inputParams: [convertToAsset(fromAsset), convertToAsset(toAsset), shares],
+          inputParams: [convertToAsset(fromAsset), convertToAsset(toAsset), shares.toFixed(0, BigNumber.ROUND_DOWN)],
           paramFields: [false, false, false],
         }}
         setStatus={setStatus}

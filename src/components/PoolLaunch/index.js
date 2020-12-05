@@ -85,7 +85,7 @@ export default function PoolLaunch() {
         setHint(defaultHint)
       } else if (amount && (isNaN(amount) || Number.parseFloat(amount) <= 0)) {
         setErrorFunc('invalid amount')
-      } else if (balances.get(assetId) && balances.get(assetId).lte(new BigNumber(amount))) {
+      } else if (balances.get(assetId) && balances.get(assetId).lt(new BigNumber(amount))) {
         setErrorFunc('exceeds the balance')
       } else {
         setErrorFunc('')
