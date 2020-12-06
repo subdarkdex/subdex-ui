@@ -71,8 +71,6 @@ export default function PoolInvest() {
             const totalSharesStr = exchange.get('total_shares').toString()
             setTotalShares(new BigNumber(totalSharesStr))
             const sharesInfo = JSON.parse(exchange.get('shares').toString())
-            console.log('myShares', sharesInfo[account])
-            console.log('totalShares', totalSharesStr)
             setSharesInfo(
               sharesInfo[account]
                 ? `${new BigNumber(sharesInfo[account]).multipliedBy(100).div(totalSharesStr)} %`
@@ -116,7 +114,6 @@ export default function PoolInvest() {
       totalShares.gt(0)
     ) {
       setToAssetAmount(new BigNumber(toAssetPool).multipliedBy(fromAssetAmount).div(fromAssetPool).toString())
-      console.log('totalShares', totalShares)
       setShares(new BigNumber(totalShares).multipliedBy(fromAssetAmount).div(fromAssetPool))
     } else {
       setShares(new BigNumber(0))
