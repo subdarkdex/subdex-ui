@@ -118,6 +118,21 @@ export default function Swap() {
   }, [api.query.dexPallet, fromAsset, fromAssetAmount, toAsset, toAssetAmount, validate, updateAssetStates])
 
   useEffect(() => {
+    const calculateAmountOut = (amountIn, fromAssetPool, toAssetPool, invariant) => {
+      const newFromAssetPool = new BigNumber(fromAssetPool).plus(amountIn)
+      const fee = new BigNumber(amountIn).multipliedBy(feeRate).div(feePrecision)
+      const tempFromAssetPool = newFromAssetPool.minus(fee)
+      const newToAssetPool = new BigNumber(invariant).div(tempFromAssetPool)
+      return new BigNumber(toAssetPool).minus(newToAssetPool)
+    }
+
+    const calculateAmountIn = (amountOut, toAssetPool, fromAssetPool, invariant) => {
+      const newToAssetPool = new BigNumber(toAssetPool).minus(amountOut)
+      const newFromAssetPool = new BigNumber(invariant).div(newToAssetPool)
+      const addedFromAssetAmount = newFromAssetPool.minus(fromAssetPool)
+      return addedFromAssetAmount.multipliedBy(feePrecision).div(feePrecision.minus(feeRate))
+    }
+
     const setToAssetAmountAndPrice = (amountIn, amountOut) => {
       const toAssetAmount = truncDecimals(toAsset, convertBalance(toAsset, amountOut).toString())
       const minToAssetAmount = truncDecimals(
@@ -193,22 +208,12 @@ export default function Swap() {
     toAssetPool,
     exchangeExists,
     exchangeInvariant,
+    exactMode,
+    maxSendPercent,
+    minReceivedPercent,
+    feePrecision,
+    feeRate,
   ])
-
-  const calculateAmountOut = (amountIn, fromAssetPool, toAssetPool, invariant) => {
-    const newFromAssetPool = new BigNumber(fromAssetPool).plus(amountIn)
-    const fee = new BigNumber(amountIn).multipliedBy(feeRate).div(feePrecision)
-    const tempFromAssetPool = newFromAssetPool.minus(fee)
-    const newToAssetPool = new BigNumber(invariant).div(tempFromAssetPool)
-    return new BigNumber(toAssetPool).minus(newToAssetPool)
-  }
-
-  const calculateAmountIn = (amountOut, toAssetPool, fromAssetPool, invariant) => {
-    const newToAssetPool = new BigNumber(toAssetPool).minus(amountOut)
-    const newFromAssetPool = new BigNumber(invariant).div(newToAssetPool)
-    const addedFromAssetAmount = newFromAssetPool.minus(fromAssetPool)
-    return addedFromAssetAmount.multipliedBy(feePrecision).div(feePrecision.minus(feeRate))
-  }
 
   const validateReceiver = (receiver) => {
     if (receiver && !isValidAddress(receiver)) {
@@ -296,10 +301,10 @@ export default function Swap() {
             palletRpc: 'dexPallet',
             callable: 'swapExactTo',
             inputParams: [
-              fromAsset,
+              convertToAsset(fromAsset),
               convertAmount(fromAsset, fromAssetAmount),
-              toAsset,
-              convertAmount(toAsset, toAssetAmount),
+              convertToAsset(toAsset),
+              convertAmount(toAsset, minReceived),
               receiver,
             ],
             paramFields: [false, false, false, false, false],
