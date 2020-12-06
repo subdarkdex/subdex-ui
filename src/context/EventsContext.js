@@ -38,6 +38,7 @@ const EventsContextProvider = (props) => {
               return copy
             })
             break
+          case 'Initialized':
           case 'Invested':
             setPoolEvents((e) => {
               console.log(params[1], 'converted to', convertToAssetId(params[1]))
