@@ -12,7 +12,7 @@
   "repository": {
     "url": "https://github.com/subdarkdex/subdex-ui"
   },
-  "license": "Unlicense",
+  "license": "Apache 2.0",
   "author": "Subdex team <subdex@protonmail.com>",
   "scripts": {
     "build": "react-scripts build",

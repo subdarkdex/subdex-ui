@@ -15,7 +15,7 @@ yarn
 
 ## Usage
 
-Before you start the frontend locally, you need to start the SubDEX chain node following the [README.md](https://github.com/subdarkdex/subdex-chain).
+Before you start the frontend locally, you need to start the SubDEX parachain node following the [README.md](https://github.com/subdarkdex/subdex-xc-network).
 
 Then you can start the app in development mode to connect to a locally running node
 
