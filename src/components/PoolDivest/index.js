@@ -6,7 +6,7 @@ import LabelOutput from '../LabelOutput'
 import useSubstrate from '../../hooks/useSubstrate'
 import { AccountContext, SettingsContext } from '../../context'
 import { TxButton } from '../TxButton'
-import { convertToAsset, convertBalance, convertAmount, shortenNumber } from '../../utils/conversion'
+import { convertToAsset, convertBalance, convertAmountNoDecimal, shortenNumber } from '../../utils/conversion'
 import BigNumber from 'bignumber.js'
 import { PoolInputsContainer } from '../Pool'
 
@@ -183,8 +183,8 @@ export default function PoolInvest() {
             convertToAsset(fromAsset),
             convertToAsset(toAsset),
             sharesToDivest.toFixed(0, BigNumber.ROUND_UP),
-            convertAmount(fromAsset, fromAssetToReceive),
-            convertAmount(toAsset, toAssetToReceive),
+            convertAmountNoDecimal(fromAsset, fromAssetToReceive, BigNumber.ROUND_DOWN),
+            convertAmountNoDecimal(toAsset, toAssetToReceive, BigNumber.ROUND_DOWN),
           ],
           paramFields: [false, false, false, false, false],
         }}

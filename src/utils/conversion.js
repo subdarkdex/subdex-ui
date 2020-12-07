@@ -29,6 +29,14 @@ const convertAmount = (assetId, amount) => {
   return new BigNumber(amount).multipliedBy(new BigNumber(10).pow(decimals)).toString()
 }
 
+const convertAmountNoDecimal = (assetId, amount, roundingMode) => {
+  if (!amount || isNaN(amount) || Number.parseFloat(amount) < 0) {
+    return null
+  }
+  const decimals = assetMap.get(assetId).decimals
+  return new BigNumber(amount).multipliedBy(new BigNumber(10).pow(decimals)).toFixed(0, roundingMode)
+}
+
 const convertShares = (shares) => {
   const denominator = new BigNumber(10).pow(15)
   return new BigNumber(shares).div(denominator)
@@ -69,6 +77,7 @@ export {
   convertToAsset,
   convertToAssetId,
   convertAmount,
+  convertAmountNoDecimal,
   convertShares,
   convertBalance,
   shortenNumber,
