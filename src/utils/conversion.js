@@ -11,7 +11,7 @@ const convertToAsset = (assetId) => {
   if (assetId === KSM_ASSET_ID) {
     return { MainNetworkCurrency: null }
   }
-  return { ParachainAsset: assetId }
+  return { ParachainAsset: parseInt(assetId) }
 }
 
 const convertToAssetId = (asset) => {
