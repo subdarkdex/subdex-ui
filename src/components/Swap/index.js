@@ -100,8 +100,8 @@ export default function Swap() {
   useEffect(() => setStatus(''), [fromAsset, fromAssetAmount, toAsset, toAssetAmount, account])
 
   useEffect(() => {
-    validate(fromAsset, fromAssetAmount, toAsset, toAssetAmount)
     let unsubscribe
+    validate(fromAsset, fromAssetAmount, toAsset, toAssetAmount)
     const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
     const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
@@ -112,9 +112,7 @@ export default function Swap() {
         unsubscribe = unsub
       })
       .catch(console.error)
-    return () => {
-      unsubscribe && unsubscribe()
-    }
+    return () => unsubscribe && unsubscribe()
   }, [api.query.dexPallet, fromAsset, fromAssetAmount, toAsset, toAssetAmount, validate, updateAssetStates])
 
   useEffect(() => {

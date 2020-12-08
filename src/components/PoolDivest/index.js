@@ -34,10 +34,10 @@ export default function PoolInvest() {
   const [sharesInfo, setSharesInfo] = useState('')
 
   useEffect(() => {
+    let unsubscribe
     if (fromAsset === toAsset) {
       clearPoolData()
     } else {
-      let unsubscribe
       const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
       const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
       api.query.dexPallet
@@ -80,8 +80,8 @@ export default function PoolInvest() {
           unsubscribe = unsub
         })
         .catch(console.error)
-      return () => unsubscribe && unsubscribe()
     }
+    return () => unsubscribe && unsubscribe()
   }, [fromAsset, toAsset, account, api.query.dexPallet])
 
   const buildSharesInfo = (shares, totalShares) => {

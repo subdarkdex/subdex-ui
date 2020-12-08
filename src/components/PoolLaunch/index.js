@@ -48,8 +48,8 @@ export default function PoolLaunch() {
   }, [status])
 
   useEffect(() => {
+    let unsubscribe
     if (fromAsset !== toAsset) {
-      let unsubscribe
       const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
       const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
       api.query.dexPallet
@@ -70,8 +70,8 @@ export default function PoolLaunch() {
           unsubscribe = unsub
         })
         .catch(console.error)
-      return () => unsubscribe && unsubscribe()
     }
+    return () => unsubscribe && unsubscribe()
   }, [api.query.dexPallet, fromAsset, toAsset])
 
   const getPrice = (fromAssetamount, toAssetAmount) => {
