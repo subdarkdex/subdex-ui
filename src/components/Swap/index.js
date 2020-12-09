@@ -30,16 +30,12 @@ export default function Swap() {
   const [receiverError, setReceiverError] = useState('')
   const [price, setPrice] = useState('')
   const [minReceived, setMinReceived] = useState('')
-  const [maxSend, setMaxSend] = useState('')
   const [exchangeInvariant, setExchangeInvariant] = useState('')
   const [exchangeExists, setExchangeExists] = useState(false)
-  const [exactMode, setExactMode] = useState('')
 
   const feeRate = new BigNumber(3)
   const feePrecision = new BigNumber(1000)
-
   const minReceivedPercent = feePrecision.minus(BigNumber(slippage)).div(feePrecision)
-  const maxSendPercent = feePrecision.plus(BigNumber(slippage)).div(feePrecision)
 
   const validate = useCallback(
     (fromAsset, fromAssetAmount, toAsset, toAssetAmount) => {
@@ -118,13 +114,6 @@ export default function Swap() {
       return new BigNumber(toAssetPool).minus(newToAssetPool)
     }
 
-    const calculateAmountIn = (amountOut, toAssetPool, fromAssetPool, invariant) => {
-      const newToAssetPool = new BigNumber(toAssetPool).minus(amountOut)
-      const newFromAssetPool = new BigNumber(invariant).div(newToAssetPool)
-      const addedFromAssetAmount = newFromAssetPool.minus(fromAssetPool)
-      return addedFromAssetAmount.multipliedBy(feePrecision).div(feePrecision.minus(feeRate))
-    }
-
     const setToAssetAmountAndPrice = (amountIn, amountOut) => {
       const toAssetAmount = truncDecimals(toAsset, convertBalance(toAsset, amountOut).toString())
       const minToAssetAmount = truncDecimals(
@@ -138,56 +127,14 @@ export default function Swap() {
       )
     }
 
-    const setFromAssetAmountAndPrice = (amountIn, amountOut) => {
-      const fromAssetAmount = truncDecimals(fromAsset, convertBalance(fromAsset, amountIn).toString())
-      const maxFromAssetAmount = truncDecimals(
-        fromAsset,
-        convertBalance(fromAsset, amountIn.multipliedBy(maxSendPercent)).toString()
-      )
-      setFromAssetAmount(fromAssetAmount)
-      setMaxSend(maxFromAssetAmount)
-      setPrice(
-        `${amountOut.div(amountIn).toString()} ${assetMap.get(toAsset).symbol} /  ${assetMap.get(fromAsset).symbol}`
-      )
-    }
-
-    if (!fromAssetError && !toAssetError && exchangeExists) {
-      if (exactMode === 'exactIn') {
-        if (fromAssetAmount) {
-          const amountIn = convertAmount(fromAsset, fromAssetAmount)
-          const amountOut = calculateAmountOut(amountIn, fromAssetPool, toAssetPool, exchangeInvariant)
-          setToAssetAmountAndPrice(amountIn, amountOut)
-        } else {
-          setPrice('')
-          setToAssetAmount('')
-          setMinReceived('')
-          setMaxSend('')
-          setExactMode('')
-        }
-      } else if (exactMode === 'exactOut') {
-        if (toAssetAmount) {
-          const amountOut = new BigNumber(convertAmount(toAsset, toAssetAmount))
-          const amountIn = calculateAmountIn(amountOut, toAssetPool, fromAssetPool, exchangeInvariant)
-          setFromAssetAmountAndPrice(amountIn, amountOut)
-        } else {
-          setPrice('')
-          setFromAssetAmount('')
-          setMinReceived('')
-          setMaxSend('')
-          setExactMode('')
-        }
-      }
+    if (!fromAssetError && !toAssetError && exchangeExists && fromAssetAmount) {
+      const amountIn = convertAmount(fromAsset, fromAssetAmount)
+      const amountOut = calculateAmountOut(amountIn, fromAssetPool, toAssetPool, exchangeInvariant)
+      setToAssetAmountAndPrice(amountIn, amountOut)
     } else {
-      if (exactMode === 'exactIn') {
-        setToAssetAmount('')
-      } else if (exactMode === 'exactOut') {
-        setFromAssetAmount('')
-      }
-
+      setToAssetAmount('')
       setPrice('')
       setMinReceived('')
-      setMaxSend('')
-      setExactMode('')
     }
   }, [
     fromAsset,
@@ -196,12 +143,9 @@ export default function Swap() {
     fromAssetPool,
     toAsset,
     toAssetError,
-    toAssetAmount,
     toAssetPool,
     exchangeExists,
     exchangeInvariant,
-    exactMode,
-    maxSendPercent,
     minReceivedPercent,
     feePrecision,
     feeRate,
@@ -233,13 +177,12 @@ export default function Swap() {
         <TokenInput
           options={options}
           label="Send"
-          placeholder="Input Amount Here"
+          placeholder="Type here"
           disabled={inProgress()}
           dropdownDisabled={inProgress()}
           error={fromAssetError}
           onChangeAmount={(e) => {
             setFromAssetAmount(e.target.value)
-            setExactMode('exactIn')
           }}
           onChangeAsset={setFromAsset}
           asset={fromAsset}
@@ -248,14 +191,10 @@ export default function Swap() {
         <TokenInput
           options={options}
           label="Receive"
-          placeholder="Output Amount Here"
+          placeholder="Read only"
           error={toAssetError}
           disabled={inProgress()}
           dropdownDisabled={inProgress()}
-          onChangeAmount={(e) => {
-            setToAssetAmount(e.target.value)
-            setExactMode('exactOut')
-          }}
           onChangeAsset={setToAsset}
           asset={toAsset}
           amount={toAssetAmount}
@@ -269,22 +208,8 @@ export default function Swap() {
             disabled={inProgress()}
             onChange={(e) => setReceiver(e.target.value)}
           />
-
-          {exactMode ? (
-            exactMode === 'exactIn' ? (
-              <div>
-                <LabelOutput label="Price" value={price} />
-                <LabelOutput label="Min Received" value={minReceived} />
-              </div>
-            ) : (
-              <div>
-                <LabelOutput label="Price" value={price} />
-                <LabelOutput label="Max Send" value={maxSend} />
-              </div>
-            )
-          ) : (
-            ''
-          )}
+          <LabelOutput label="Price" value={price} />
+          <LabelOutput label="Min Received" value={minReceived} />
         </div>
         <TxButton
           accountPair={accountPair}
