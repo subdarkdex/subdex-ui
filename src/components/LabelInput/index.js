@@ -44,7 +44,7 @@ const Label = styled.div`
 `
 
 const Error = styled.div`
-  color: orangered;
+  color: ${({ theme }) => theme.errorColor};
 `
 
 const Input = styled.input`

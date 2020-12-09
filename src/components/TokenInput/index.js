@@ -72,7 +72,7 @@ const LabelErrorBalance = styled.div`
 `
 
 const Error = styled.div`
-  color: orangered;
+  color: ${({ theme }) => theme.errorColor};
 `
 
 const InputAndDropdown = styled.div`

@@ -13,6 +13,7 @@ export const lightTheme = {
   dropdownBackground: 'linear-gradient(rgba(140, 121, 255, 1), rgba(200,200,255,1))',
   settingsBackground: 'rgba(253,253,253,1)',
   settingsTextColor: 'rgba(10,0,35,0.6)',
+  errorColor: 'red',
 }
 
 export const darkTheme = {
@@ -31,4 +32,5 @@ export const darkTheme = {
   dropdownBackground: 'linear-gradient(#9381ff, deepskyblue)',
   settingsBackground: 'deepskyblue',
   settingsTextColor: 'rgba(10,0,35,1)',
+  errorColor: 'orange',
 }
