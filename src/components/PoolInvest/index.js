@@ -34,55 +34,49 @@ export default function PoolInvest() {
 
   useEffect(() => {
     let unsubscribe
-    if (fromAsset === toAsset) {
-      clearPoolData()
-    } else {
-      const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
-      const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
-      api.query.dexPallet
-        .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
-          if (exchange.get('invariant').toString() === '0') {
-            setExchangeExists(false)
-            setHint(
-              `You are the first liquidity provider for 
+    const firstAsset = fromAsset < toAsset ? fromAsset : toAsset
+    const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
+    api.query.dexPallet
+      .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
+        if (exchange.get('invariant').toString() === '0') {
+          setExchangeExists(false)
+          setHint(
+            `You are the first liquidity provider for 
             ${assetMap.get(fromAsset).symbol} / ${assetMap.get(toAsset).symbol}, 
             please click Launch button to start the new exchange`
-            )
-            clearPoolData()
-          } else {
-            setExchangeExists(true)
-            setHint(defaultHint)
-            const fromAssetPoolStr =
-              fromAsset < toAsset
-                ? exchange.get('first_asset_pool').toString()
-                : exchange.get('second_asset_pool').toString()
-            const fromAssetPoolBalance = convertBalance(fromAsset, fromAssetPoolStr)
-            setFromAssetPool(fromAssetPoolBalance)
-            const toAssetPoolStr =
-              fromAsset < toAsset
-                ? exchange.get('second_asset_pool').toString()
-                : exchange.get('first_asset_pool').toString()
-            const toAssetPoolBalance = convertBalance(toAsset, toAssetPoolStr)
-            setToAssetPool(toAssetPoolBalance)
-            setPoolInfo(
-              `${shortenNumber(fromAssetPoolBalance.toString())} ${assetMap.get(fromAsset).symbol} + 
+          )
+          clearPoolData()
+        } else {
+          setExchangeExists(true)
+          setHint(defaultHint)
+          const fromAssetPoolStr =
+            fromAsset < toAsset
+              ? exchange.get('first_asset_pool').toString()
+              : exchange.get('second_asset_pool').toString()
+          const fromAssetPoolBalance = convertBalance(fromAsset, fromAssetPoolStr)
+          setFromAssetPool(fromAssetPoolBalance)
+          const toAssetPoolStr =
+            fromAsset < toAsset
+              ? exchange.get('second_asset_pool').toString()
+              : exchange.get('first_asset_pool').toString()
+          const toAssetPoolBalance = convertBalance(toAsset, toAssetPoolStr)
+          setToAssetPool(toAssetPoolBalance)
+          setPoolInfo(
+            `${shortenNumber(fromAssetPoolBalance.toString())} ${assetMap.get(fromAsset).symbol} + 
               ${shortenNumber(toAssetPoolBalance.toString())} ${assetMap.get(toAsset).symbol}`
-            )
-            const totalSharesStr = exchange.get('total_shares').toString()
-            setTotalShares(new BigNumber(totalSharesStr))
-            const sharesInfo = JSON.parse(exchange.get('shares').toString())
-            setSharesInfo(
-              sharesInfo[account]
-                ? `${new BigNumber(sharesInfo[account]).multipliedBy(100).div(totalSharesStr)} %`
-                : '0'
-            )
-          }
-        })
-        .then((unsub) => {
-          unsubscribe = unsub
-        })
-        .catch(console.error)
-    }
+          )
+          const totalSharesStr = exchange.get('total_shares').toString()
+          setTotalShares(new BigNumber(totalSharesStr))
+          const sharesInfo = JSON.parse(exchange.get('shares').toString())
+          setSharesInfo(
+            sharesInfo[account] ? `${new BigNumber(sharesInfo[account]).multipliedBy(100).div(totalSharesStr)} %` : '0'
+          )
+        }
+      })
+      .then((unsub) => {
+        unsubscribe = unsub
+      })
+      .catch(console.error)
     return () => unsubscribe && unsubscribe()
   }, [fromAsset, toAsset, account, api.query.dexPallet])
 
