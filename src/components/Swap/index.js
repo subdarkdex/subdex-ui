@@ -44,25 +44,25 @@ export default function Swap() {
   const validate = useCallback(
     (fromAsset, fromAssetAmount, toAsset, toAssetAmount) => {
       if (fromAsset === toAsset) {
-        setFromAssetError('it cannot be the same asset')
-        setToAssetError('it cannot be the same asset')
+        setFromAssetError('Cannot be the same asset')
+        setToAssetError('Cannot be the same asset')
       } else {
         if (fromAssetAmount && (isNaN(fromAssetAmount) || fromAssetAmount <= 0)) {
           setFromAssetError('invalid amount')
-        } else if (!!fromAssetPool && new BigNumber(fromAssetPool).lte(convertAmount(fromAsset, fromAssetAmount))) {
+        } else if (!!fromAssetPool && new BigNumber(fromAssetPool).lt(convertAmount(fromAsset, fromAssetAmount))) {
           setFromAssetError(
             `exceeds pool size: ${shortenNumber(convertBalance(fromAsset, fromAssetPool).toString(), 8)}`
           )
-        } else if (balances.get(fromAsset) && balances.get(fromAsset).lte(new BigNumber(fromAssetAmount))) {
+        } else if (balances.get(fromAsset) && balances.get(fromAsset).lt(new BigNumber(fromAssetAmount))) {
           setFromAssetError('exceeds the balance')
         } else {
           setFromAssetError('')
         }
         if (toAssetAmount && (isNaN(toAssetAmount) || toAssetAmount <= 0)) {
           setToAssetError('invalid amount')
-        } else if (!!toAssetPool && new BigNumber(toAssetPool).lte(convertAmount(toAsset, toAssetAmount))) {
+        } else if (!!toAssetPool && new BigNumber(toAssetPool).lt(convertAmount(toAsset, toAssetAmount))) {
           setToAssetError(`exceeds pool size: ${shortenNumber(convertBalance(toAsset, toAssetPool).toString(), 8)}`)
-        } else if (balances.get(toAsset) && balances.get(toAsset).lte(new BigNumber(toAssetAmount))) {
+        } else if (balances.get(toAsset) && balances.get(toAsset).lt(new BigNumber(toAssetAmount))) {
           setToAssetError('exceeds the balance')
         } else {
           setToAssetError('')
@@ -70,27 +70,6 @@ export default function Swap() {
       }
     },
     [balances, fromAssetPool, toAssetPool]
-  )
-
-  const updateAssetStates = useCallback(
-    (exchange) => {
-      if (exchange.get('invariant').toString() === '0') {
-        setExchangeExists(false)
-        setFromAssetError('no exchange exists')
-        setToAssetError('no exchange exists')
-        setFromAssetPool('')
-        setToAssetPool('')
-        setExchangeInvariant('')
-      } else {
-        setExchangeExists(true)
-        const fromAssetPool = fromAsset < toAsset ? exchange.get('first_asset_pool') : exchange.get('second_asset_pool')
-        const toAssetPool = fromAsset < toAsset ? exchange.get('second_asset_pool') : exchange.get('first_asset_pool')
-        setFromAssetPool(fromAssetPool.toString())
-        setToAssetPool(toAssetPool.toString())
-        setExchangeInvariant(exchange.get('invariant').toString())
-      }
-    },
-    [fromAsset, toAsset]
   )
 
   useEffect(() => setReceiver(account), [account])
@@ -106,14 +85,29 @@ export default function Swap() {
     const secondAsset = fromAsset < toAsset ? toAsset : fromAsset
     api.query.dexPallet
       .exchanges(convertToAsset(firstAsset), convertToAsset(secondAsset), (exchange) => {
-        updateAssetStates(exchange)
+        if (exchange.get('invariant').toString() === '0') {
+          setExchangeExists(false)
+          setFromAssetError('no exchange exists')
+          setToAssetError('no exchange exists')
+          setFromAssetPool('')
+          setToAssetPool('')
+          setExchangeInvariant('')
+        } else {
+          setExchangeExists(true)
+          const fromAssetPool =
+            fromAsset < toAsset ? exchange.get('first_asset_pool') : exchange.get('second_asset_pool')
+          const toAssetPool = fromAsset < toAsset ? exchange.get('second_asset_pool') : exchange.get('first_asset_pool')
+          setFromAssetPool(fromAssetPool.toString())
+          setToAssetPool(toAssetPool.toString())
+          setExchangeInvariant(exchange.get('invariant').toString())
+        }
       })
       .then((unsub) => {
         unsubscribe = unsub
       })
       .catch(console.error)
     return () => unsubscribe && unsubscribe()
-  }, [api.query.dexPallet, fromAsset, fromAssetAmount, toAsset, toAssetAmount, validate, updateAssetStates])
+  }, [api.query.dexPallet, fromAsset, fromAssetAmount, toAsset, toAssetAmount, validate])
 
   useEffect(() => {
     const calculateAmountOut = (amountIn, fromAssetPool, toAssetPool, invariant) => {
