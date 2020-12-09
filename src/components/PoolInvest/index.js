@@ -101,6 +101,9 @@ export default function PoolInvest() {
       setHint(defaultHint)
     } else {
       setHint(status)
+      if (status.includes('Finalized')) {
+        setFromAssetAmount('')
+      }
     }
   }, [status])
 

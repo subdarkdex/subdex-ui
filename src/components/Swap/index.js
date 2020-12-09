@@ -160,6 +160,12 @@ export default function Swap() {
     }
   }
 
+  useEffect(() => {
+    if (status && status.includes('Finalized')) {
+      setFromAssetAmount('')
+    }
+  }, [status])
+
   const inProgress = () => {
     return !!status && !status.includes('Finalized') && !status.includes('Error')
   }
